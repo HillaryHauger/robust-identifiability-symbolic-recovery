@@ -1,0 +1,65 @@
+#This file creates data in order to test the algorithms on how
+#well they identify uniqueness
+
+import numpy as np
+import sympy
+
+def create_data_2d(T_start=0, T_end=5, L_x=5, N_t=200, N_x=200):
+    t = np.linspace(T_start, T_end, num=N_t)
+    x = np.linspace(-L_x/2.0, L_x/2.0, num=N_x)
+    T,X = np.meshgrid(t,x)
+    return T,X,t,x
+
+def create_data_3d(T_start, T_end, L_x,L_y, N_t, N_x,N_y):
+    t = np.linspace(T_start, T_end, num=N_t)
+    x = np.linspace(-L_x/2.0, L_x/2.0, num=N_x)
+    y = np.linspace(-L_y/2.0, L_y/2.0, num=N_y)
+    T,X,Y = np.meshgrid(t,x,y)
+    return T,X,Y,t,x,y
+
+# adds noise to data dependent on norm
+def add_noise(u,target_noise):
+    var = target_noise * np.sqrt(np.mean(np.square(u)))
+    u_noise = u + np.random.normal(0, var, size=u.shape)
+    return u_noise
+
+def get_experiment_names():
+    names = ['linear_nonunique_1','linear_unique_1']
+    exp_name_dict = {}
+    for name in names:
+        u,x,t,formula= experiment_data(1, name)
+        exp_name_dict[name] = value
+    return exp_name_dict
+
+def experiment_data(n_samples, experiment_name):
+    
+    if experiment_name == 'linear_nonunique_1':
+        T,X,t,x = create_data_2d()
+        a= np.random.randn()
+        def func(T,X, module): 
+            if module == sympy:
+                T = sympy.Symbol('t')
+                X= sympy.Symbol('x')
+            f = module.exp(X-a*T)
+            return f
+        u = func(T,X,np) 
+        formula = func(T,X,sympy)
+
+    elif experiment_name == 'linear_unique_1':
+        T,X,t,x = create_data_2d()
+        a,b= np.random.randn(2)
+        def func(T,X, module): 
+            if module == sympy:
+                T = sympy.Symbol('t')
+                X= sympy.Symbol('x')
+            f = (X+b*T)*module.exp(a*T)
+            return f
+        u = func(T,X,np) 
+        formula = func(T,X,sympy)
+
+    else:
+        raise NotImplementedError(f'Experiment {experiment_name} not implemented yet.')
+        
+
+    return u,x,t,formula
+

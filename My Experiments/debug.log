@@ -1,4 +1,4 @@
-2023-09-11 14:55:58,959 [INFO] 
+2023-10-02 10:21:46,262 [INFO] 
 Limited Total Variation Regularization Support Detected! 
 ---> CVXPY is not installed. 
 ---> Many Total Variation Methods require CVXPY including: 
@@ -7,19 +7,19 @@ Limited Total Variation Regularization Support Detected!
 ---> Recommended to also install MOSEK and obtain a MOSEK license.
 You can still use: total_variation_regularization.iterative_velocity
 
-2023-09-11 14:55:58,976 [INFO] 
+2023-10-02 10:21:46,274 [INFO] 
 Limited Linear Model Support Detected! 
 ---> PYCHEBFUN is not installed. 
 ---> Install pychebfun to use chebfun derivatives (https://github.com/pychebfun/pychebfun/) 
 You can still use other methods 
 
-2023-09-11 14:55:58,980 [INFO] 
+2023-10-02 10:21:46,280 [INFO] 
 Limited Linear Model Support Detected! 
 ---> CVXPY is not installed. 
 ---> Install CVXPY to use lineardiff derivatives 
 You can still use other methods 
 
-2023-09-11 16:39:02,532 [INFO] 
+2023-10-02 10:22:47,584 [INFO] 
 Limited Total Variation Regularization Support Detected! 
 ---> CVXPY is not installed. 
 ---> Many Total Variation Methods require CVXPY including: 
@@ -28,19 +28,19 @@ Limited Total Variation Regularization Support Detected!
 ---> Recommended to also install MOSEK and obtain a MOSEK license.
 You can still use: total_variation_regularization.iterative_velocity
 
-2023-09-11 16:39:02,556 [INFO] 
+2023-10-02 10:22:47,614 [INFO] 
 Limited Linear Model Support Detected! 
 ---> PYCHEBFUN is not installed. 
 ---> Install pychebfun to use chebfun derivatives (https://github.com/pychebfun/pychebfun/) 
 You can still use other methods 
 
-2023-09-11 16:39:02,562 [INFO] 
+2023-10-02 10:22:47,619 [INFO] 
 Limited Linear Model Support Detected! 
 ---> CVXPY is not installed. 
 ---> Install CVXPY to use lineardiff derivatives 
 You can still use other methods 
 
-2023-09-11 16:55:47,165 [INFO] 
+2023-10-02 10:23:58,898 [INFO] 
 Limited Total Variation Regularization Support Detected! 
 ---> CVXPY is not installed. 
 ---> Many Total Variation Methods require CVXPY including: 
@@ -49,19 +49,21 @@ Limited Total Variation Regularization Support Detected!
 ---> Recommended to also install MOSEK and obtain a MOSEK license.
 You can still use: total_variation_regularization.iterative_velocity
 
-2023-09-11 16:55:47,189 [INFO] 
+2023-10-02 10:23:58,911 [INFO] 
 Limited Linear Model Support Detected! 
 ---> PYCHEBFUN is not installed. 
 ---> Install pychebfun to use chebfun derivatives (https://github.com/pychebfun/pychebfun/) 
 You can still use other methods 
 
-2023-09-11 16:55:47,195 [INFO] 
+2023-10-02 10:23:58,917 [INFO] 
 Limited Linear Model Support Detected! 
 ---> CVXPY is not installed. 
 ---> Install CVXPY to use lineardiff derivatives 
 You can still use other methods 
 
-2023-10-02 09:17:15,892 [INFO] 
+2023-10-02 11:17:53,800 [WARNING] No handles with labels found to put in legend.
+2023-10-02 11:18:09,450 [WARNING] No handles with labels found to put in legend.
+2023-10-02 13:19:46,292 [INFO] 
 Limited Total Variation Regularization Support Detected! 
 ---> CVXPY is not installed. 
 ---> Many Total Variation Methods require CVXPY including: 
@@ -70,38 +72,21 @@ Limited Total Variation Regularization Support Detected!
 ---> Recommended to also install MOSEK and obtain a MOSEK license.
 You can still use: total_variation_regularization.iterative_velocity
 
-2023-10-02 09:17:15,958 [INFO] 
+2023-10-02 13:19:46,307 [INFO] 
 Limited Linear Model Support Detected! 
 ---> PYCHEBFUN is not installed. 
 ---> Install pychebfun to use chebfun derivatives (https://github.com/pychebfun/pychebfun/) 
 You can still use other methods 
 
-2023-10-02 09:17:15,963 [INFO] 
+2023-10-02 13:19:46,312 [INFO] 
 Limited Linear Model Support Detected! 
 ---> CVXPY is not installed. 
 ---> Install CVXPY to use lineardiff derivatives 
 You can still use other methods 
 
-2023-10-02 09:20:45,486 [INFO] 
-Limited Total Variation Regularization Support Detected! 
----> CVXPY is not installed. 
----> Many Total Variation Methods require CVXPY including: 
----> velocity, acceleration, jerk, jerk_sliding, smooth_acceleration
----> Please install CVXPY to use these methods.
----> Recommended to also install MOSEK and obtain a MOSEK license.
-You can still use: total_variation_regularization.iterative_velocity
-
-2023-10-02 09:20:45,501 [INFO] 
-Limited Linear Model Support Detected! 
----> PYCHEBFUN is not installed. 
----> Install pychebfun to use chebfun derivatives (https://github.com/pychebfun/pychebfun/) 
-You can still use other methods 
-
-2023-10-02 09:20:45,507 [INFO] 
-Limited Linear Model Support Detected! 
----> CVXPY is not installed. 
----> Install CVXPY to use lineardiff derivatives 
-You can still use other methods 
-
-2023-10-02 11:14:55,639 [ERROR] No such comm target registered: jupyter.widget.control
-2023-10-02 11:14:55,662 [WARNING] No such comm: 96f70d4f-d51d-45f3-a283-a3f1725a95f2
+2023-10-02 13:19:49,368 [ERROR] No such comm target registered: jupyter.widget.control
+2023-10-02 13:19:49,376 [WARNING] No such comm: 836457ec-6dc1-42f0-a142-db97e93f251f
+2023-10-02 13:33:33,969 [WARNING] No handles with labels found to put in legend.
+2023-10-02 13:33:57,236 [WARNING] No handles with labels found to put in legend.
+2023-10-02 13:34:31,969 [WARNING] No handles with labels found to put in legend.
+2023-10-02 13:39:47,854 [WARNING] No handles with labels found to put in legend.
