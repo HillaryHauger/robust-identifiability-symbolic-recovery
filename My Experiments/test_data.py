@@ -18,10 +18,18 @@ def create_data_3d(T_start, T_end, L_x,L_y, N_t, N_x,N_y):
     return T,X,Y,t,x,y
 
 # adds noise to data dependent on norm
-def add_noise(u,target_noise):
+def add_noise(u,target_noise,seed=1234):
+    np.random.seed(seed)
     var = target_noise * np.sqrt(np.mean(np.square(u)))
     u_noise = u + np.random.normal(0, var, size=u.shape)
     return u_noise
+
+# normalisation especially for jacobi matrix: in order to get conclusive singular values
+# uses the frobenius norm to normalise
+def normalise(matrix):
+    norm = np.linalg.norm(matrix)
+    matrix = matrix/norm
+    return matrix
 
 def get_experiment_names():
     names = ['linear_nonunique_1','linear_unique_1','linear_unique_2','algebraic_nonunique_1',

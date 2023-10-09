@@ -47,10 +47,27 @@ def calc_deriv_fftn(f,ax,d):
     return ifftn(fftf).real
 
 
+# gives function with compact support
+# equal to one in x 
+def flatten(x,A,B,n_ext=None):
+    n = int(x.size/2) if n_ext is None else n_ext
+    dx=x[1]-x[0]
+    newx=np.arange(A-n*dx,B +n*dx,dx)
+    f=np.empty(newx.size, dtype=float)
+    a=29
+    half = A+(B-A)/2
+    dx = x[1]-x[0]
+    f[newx<=half]=1.0/(1.0 + np.exp(-a*(newx[newx<=half]-(A-n/2*dx))))
+    f[newx>half]=-1.0/(1.0 + np.exp(-a*(newx[newx>half]-(B+n/2*dx))))+1.0
+    f[n:x.size+n]=1#values from [x0 to xn] must be 1
+    f[f>0.99999]=1 #numeric values must be 1
+    f[f<1e-7]=0
+    return newx,n,f
+
 # This function takes f and x, creates more datapoints s.t. f 
 # can be extended to a periodic function with value 0 at end and beginning
-# return newf, newx, newn, only works for one_dim function
-def flattenandextendfunc_1d(f,x):
+# return newf, newx, newn, only works for one_dim function 
+def flattenandextendfunc_1d(f,x,n_ext=None):
     # error handling
     if f.size!=x.size:
         print("Error: f and x do not have same size: f.size="
@@ -58,13 +75,13 @@ def flattenandextendfunc_1d(f,x):
         print("Exit flattenandextendfu")
         return None
     # Get necessary data to extend f
-    dx = x[1]-x[0]
     A=x[0]
     B=x[x.size-1]
-    n=max(int(x.size/10),20) 
+    # Create newf: in the middle equal to f, continuous extension such that 
+    # start and endpoint are equal to one
+    newx,n,newf=flatten(x,A,B,n_ext)
+    print(f"Extending function with 2*{n} data points")
     # Create new data
-    newx=np.arange(A-n*dx,B +n*dx,dx)
-    newf=np.empty(newx.size, dtype=float)
     oldf=newf.copy()
     # Get slope at beg and end
     slope_start = (f[1]-f[0])/dx
@@ -73,12 +90,6 @@ def flattenandextendfunc_1d(f,x):
     oldf[n:n+f.size]=f
     oldf[n+f.size:]=slope_end*dx*np.arange(1, oldf[n+f.size:].size+1)+f[f.size-1]
     oldf[:n]=f[0]-slope_start*dx*np.arange(1, oldf[:n].size+1)[::-1] #[::-1] means reverse array
-    # Create newf: in the middle equal to f, continuous extension such that 
-    # start and endpoint are equal to one
-    a=30
-    half = A+(B-A)/2
-    newf[newx<=half]=1.0/(1.0 + np.exp(-a*(newx[newx<=half]-(A-n/2*dx))))
-    newf[newx>half]=-1.0/(1.0 + np.exp(-a*(newx[newx>half]-(B+n/2*dx))))+1.0
     newf = newf*oldf
     return newf,newx,n
 

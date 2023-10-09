@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from test_data import normalise
 
 def plot_result_jacobi(svs,t_grid,x_grid,target_noise=0,
                        titlesize=18,subtitle_size=16,labelsize=16,tickssize=16,fd_orders=[2,7]):
@@ -19,14 +20,3 @@ def plot_result_jacobi(svs,t_grid,x_grid,target_noise=0,
     fig.colorbar(c, ax=axes[1])
     plt.tight_layout()
 
-def compute_distance_svs(u,dx,fd_orders=range(2,8)):
-    distance_svs = []
-    for fd_order in fd_orders:
-        ux = ps.FiniteDifference(order=fd_order, d=1, axis=0,
-                             drop_endpoints=False)._differentiate(u, dx)
-    
-        u_flat, u_x_flat = u.flatten(), ux.flatten()
-        features = np.concatenate([u_flat.reshape(len(u_flat),-1), u_x_flat.reshape(len(u_flat),-1)], axis=1).T 
-        svs = svd(features, compute_uv=False)
-        distance_svs.append(svs[-1])
-    return distance_svs
