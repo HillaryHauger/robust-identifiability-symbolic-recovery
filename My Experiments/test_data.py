@@ -25,17 +25,17 @@ def add_noise(u,target_noise):
 
 def get_experiment_names():
     names = ['linear_nonunique_1','linear_unique_1','linear_unique_2','algebraic_nonunique_1',
-    'algebraic_nonunique_kdv']
+    'algebraic_nonunique_kdv', 'analytic_unique_1', 'analytic_unique_2','analytic_nonunique_1']
     exp_name_dict = {}
     for name in names:
         u,x,t,formula= experiment_data(1, name)
-        exp_name_dict[name] = value
+        exp_name_dict[name] = formula
     return exp_name_dict
 
 def experiment_data(n_samples, experiment_name):
     
     if experiment_name == 'linear_nonunique_1':
-        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_sample)
+        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         a= np.random.randn()
         def func(T,X, module): 
             if module == sympy:
@@ -47,7 +47,7 @@ def experiment_data(n_samples, experiment_name):
         formula = func(T,X,sympy)
 
     elif experiment_name == 'linear_unique_1':
-        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_sample)
+        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         a,b= np.random.randn(2)
         def func(T,X, module): 
             if module == sympy:
@@ -59,7 +59,7 @@ def experiment_data(n_samples, experiment_name):
         formula = func(T,X,sympy)
 
     elif experiment_name == 'linear_unique_2':
-        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_sample)
+        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         c= np.random.randn()
         def func(T,X, module): 
             if module == sympy:
@@ -95,12 +95,40 @@ def experiment_data(n_samples, experiment_name):
     
     elif experiment_name == 'analytic_unique_1':
         T,X,t,x = create_data_2d(T_start=1, T_end=5, L_x_start=1,L_x_end=5,N_t=n_samples,N_x=n_samples)
-        a = np.random.randn()
+        a = np.abs(np.random.randn())
         def func(T,X, module): 
             if module == sympy:
                 T = sympy.Symbol('t')
                 X= sympy.Symbol('x')
-            f = (X + T)*np.arccos(1/np.cosh(a*T))
+                f = (X + T)*module.acos(1/module.cosh(a*T))
+            else:
+                f = (X + T)*module.arccos(1/module.cosh(a*T))
+            return f
+        u = func(T,X,np) 
+        formula = func(T,X,sympy)
+
+    elif experiment_name == 'analytic_unique_2':
+        T,X,t,x = create_data_2d(T_start=1, T_end=5, L_x_start=1,L_x_end=5,N_t=n_samples,N_x=n_samples)
+        a = np.abs(np.random.randn())
+        def func(T,X, module): 
+            if module == sympy:
+                T = sympy.Symbol('t')
+                X= sympy.Symbol('x')
+                f = (X + T)*module.asin(1/module.cosh(a*T))
+            else:
+                f = (X + T)*module.arcsin(1/module.cosh(a*T))
+            return f
+        u = func(T,X,np) 
+        formula = func(T,X,sympy)
+
+    elif experiment_name == 'analytic_nonunique_1':
+        T,X,t,x = create_data_2d(T_start=0, T_end=5, L_x_start=0,L_x_end=5,N_t=n_samples,N_x=n_samples)
+        a = np.abs(np.random.randn())
+        def func(T,X, module): 
+            if module == sympy:
+                T = sympy.Symbol('t')
+                X= sympy.Symbol('x')
+            f = module.sin(X+T)
             return f
         u = func(T,X,np) 
         formula = func(T,X,sympy)
@@ -108,6 +136,5 @@ def experiment_data(n_samples, experiment_name):
     else:
         raise NotImplementedError(f'Experiment {experiment_name} not implemented yet.')
         
-
     return u,x,t,formula
 
