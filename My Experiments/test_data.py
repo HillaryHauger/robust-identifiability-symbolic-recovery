@@ -26,9 +26,16 @@ def add_noise(u,target_noise,seed=1234):
 
 # normalisation especially for jacobi matrix: in order to get conclusive singular values
 # uses the frobenius norm to normalise
-def normalise(matrix):
+def normalise_frobenius(matrix):
     norm = np.linalg.norm(matrix)
     matrix = matrix/norm
+    return matrix
+
+# normalisation especially for jacobi matrix: in order to get conclusive singular values
+# uses min and max such that values are between 0 and 1 
+def normalise_minmax(matrix):
+    max, min = matrix.max(), matrix.min()
+    matrix = (matrix-min)/(max-min)
     return matrix
 
 def get_experiment_names():

@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from test_data import normalise
 
 def plot_result_jacobi(svs,t_grid,x_grid,target_noise=0,
                        titlesize=18,subtitle_size=16,labelsize=16,tickssize=16,fd_orders=[2,7]):
