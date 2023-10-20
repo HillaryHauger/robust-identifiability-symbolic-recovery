@@ -32,10 +32,9 @@ def normalise_frobenius(matrix):
     return matrix
 
 # normalisation especially for jacobi matrix: in order to get conclusive singular values
-# uses min and max such that values are between 0 and 1 
 def normalise_minmax(matrix):
-    max, min = matrix.max(), matrix.min()
-    matrix = (matrix-min)/(max-min)
+    max=matrix.max()
+    matrix = matrix/max
     return matrix
 
 def get_experiment_names():
