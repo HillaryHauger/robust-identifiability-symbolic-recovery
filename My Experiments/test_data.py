@@ -50,7 +50,7 @@ def experiment_data(n_samples, experiment_name):
     
     if experiment_name == 'linear_nonunique_1':
         T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
-        a= np.random.randn()
+        a= 1#np.random.randn()
         def func(T,X, module): 
             if module == sympy:
                 T = sympy.Symbol('t')
