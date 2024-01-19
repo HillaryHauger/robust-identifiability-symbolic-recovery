@@ -476,3 +476,26 @@ Limited Linear Model Support Detected!
 ---> Install CVXPY to use lineardiff derivatives 
 You can still use other methods 
 
+2024-01-19 10:11:38,003 [INFO] 
+Limited Total Variation Regularization Support Detected! 
+---> CVXPY is not installed. 
+---> Many Total Variation Methods require CVXPY including: 
+---> velocity, acceleration, jerk, jerk_sliding, smooth_acceleration
+---> Please install CVXPY to use these methods.
+---> Recommended to also install MOSEK and obtain a MOSEK license.
+You can still use: total_variation_regularization.iterative_velocity
+
+2024-01-19 10:11:38,052 [INFO] 
+Limited Linear Model Support Detected! 
+---> PYCHEBFUN is not installed. 
+---> Install pychebfun to use chebfun derivatives (https://github.com/pychebfun/pychebfun/) 
+You can still use other methods 
+
+2024-01-19 10:11:38,058 [INFO] 
+Limited Linear Model Support Detected! 
+---> CVXPY is not installed. 
+---> Install CVXPY to use lineardiff derivatives 
+You can still use other methods 
+
+2024-01-19 10:11:45,899 [ERROR] No such comm target registered: jupyter.widget.control
+2024-01-19 10:11:45,915 [WARNING] No such comm: 988fb730-42b9-457d-9aa5-b9d77f3a67fb
