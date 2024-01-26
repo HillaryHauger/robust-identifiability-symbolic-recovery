@@ -105,3 +105,53 @@ sv_min: lowest singular value on matrix without noise
 def error_bound_condition(E,sv_max,sv_min):
     bound = np.sqrt(1/sv_min+(sv_max/sv_min**2)**2*E)
     return bound
+
+
+##############################################################
+#### Functions for bounding reversed condition error     #####
+##############################################################
+
+"""
+This function should upper bound the reversed condition for singular matrices 
+where on>C2>0
+C1:lower bound of biggest singular value: C <= o_max
+eps: lower obund for frobenius norm of error matrix |E|_F <= eps
+"""
+def upper_bound_singular_matrix(C,eps):
+    if C-eps<=0:
+        print(f"Error is too big C<eps with C = {C:.3e}, eps = {eps:.3e}: no upper bound can be calculated")
+        return 1.0
+        
+    bound= eps/(C-eps)*np.sqrt(1+(eps/(C-eps))**2) 
+    bound = min(bound, 1.0) # o_min/o_max <=1 in all cases
+    return bound
+
+"""
+This function should lower bound the reversed condition for nonsingular matrices 
+where on>C2>0
+C1: upper bound for o1 < C1
+C2: lower bound for on > C2 > 0
+eps: lower obund for frobenius norm of error matrix |E|_F <= eps
+The question is how to choose C2??
+"""
+def lower_bound_nonsingular_matrix(C1,C2,eps):
+    bound= (C2-eps)/(C1+eps)
+    bound = max(bound,1e-10)
+    return bound
+    
+"""Threshold if values are beneath classify as non unique PDE
+E: upper bound on the frobenius  |g-g_noise|_frobenius <=E where g =(u|u_x|...)
+C: lower bound of biggest singular value: C <= o_max
+"""
+def calc_threshold_nonuniq(E,C):
+    T = upper_bound_singular_matrix(C,E)
+    return T
+    
+"""Threshold if values are above classify as unique PDE
+E: upper bound on the frobenius  |g-g_noise|_frobenius <=E where g =(u|u_x|...)
+C1: upper bound of biggest singular value: C1 => o_max
+C2: upper bound of biggest singular value: C2 <= o_max
+"""
+def calc_threshold_uniq(C1,C2,E):
+    T = lower_bound_nonsingular_matrix(C1,C2,E)
+    return T

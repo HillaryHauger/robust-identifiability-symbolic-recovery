@@ -38,7 +38,7 @@ def normalise_minmax(matrix):
     return matrix
 
 def get_experiment_names():
-    names = ['linear_nonunique_1','linear_unique_1','linear_unique_2','algebraic_nonunique_1',
+    names = ['linear_nonunique_1','linear_nonunique_1.1','linear_nonunique_1.2','linear_unique_1','linear_unique_2','algebraic_nonunique_1',
     'algebraic_nonunique_kdv', 'analytic_unique_1', 'analytic_unique_2','analytic_nonunique_1']
     exp_name_dict = {}
     for name in names:
@@ -71,6 +71,30 @@ def experiment_data(n_samples, experiment_name):
             return f
         u = func(T,X,np) 
         formula = func(T,X,sympy)
+
+    elif experiment_name == 'linear_nonunique_1.1':
+        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
+        a= np.random.randn()
+        def func(T,X, module): 
+            if module == sympy:
+                T = sympy.Symbol('t')
+                X= sympy.Symbol('x')
+            f = module.cos(X-a*T)
+            return f
+        u = func(T,X,np) 
+        formula = func(T,X,sympy)   
+
+    elif experiment_name == 'linear_nonunique_1.2':
+        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
+        a= np.random.randn()
+        def func(T,X, module): 
+            if module == sympy:
+                T = sympy.Symbol('t')
+                X= sympy.Symbol('x')
+            f = module.sin(X-a*T)
+            return f
+        u = func(T,X,np) 
+        formula = func(T,X,sympy)         
 
     elif experiment_name == 'linear_unique_2':
         T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
