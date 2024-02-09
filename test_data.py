@@ -38,7 +38,7 @@ def normalise_minmax(matrix):
     return matrix
 
 def get_experiment_names():
-    names = [ls,'algebraic_nonunique_1',
+    names = ['linear_nonunique_1','linear_nonunique_1.1','linear_unique_1.2','linear_unique_1.3','algebraic_nonunique_1',
     'algebraic_nonunique_kdv', 'analytic_unique_1', 'analytic_unique_2','analytic_nonunique_1']
     exp_name_dict = {}
     for name in names:
@@ -60,19 +60,8 @@ def experiment_data(n_samples, experiment_name):
         u = func(T,X,np) 
         formula = func(T,X,sympy)
 
-    elif experiment_name == 'linear_unique_1':
-        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
-        a,b= np.random.randn(2)
-        def func(T,X, module): 
-            if module == sympy:
-                T = sympy.Symbol('t')
-                X= sympy.Symbol('x')
-            f = (X+b*T)*module.exp(a*T)
-            return f
-        u = func(T,X,np) 
-        formula = func(T,X,sympy)
 
-    elif experiment_name == 'linear_nonunique_1.1':
+    elif experiment_name == 'linear_unique_1.1':
         T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         a= np.random.randn()
         def func(T,X, module): 
@@ -84,7 +73,7 @@ def experiment_data(n_samples, experiment_name):
         u = func(T,X,np) 
         formula = func(T,X,sympy)   
 
-    elif experiment_name == 'linear_nonunique_1.2':
+    elif experiment_name == 'linear_unique_1.2':
         T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         a= np.random.randn()
         def func(T,X, module): 
@@ -96,7 +85,7 @@ def experiment_data(n_samples, experiment_name):
         u = func(T,X,np) 
         formula = func(T,X,sympy)         
 
-    elif experiment_name == 'linear_unique_2':
+    elif experiment_name == 'linear_unique_1.3':
         T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         c= np.random.randn()
         def func(T,X, module): 
