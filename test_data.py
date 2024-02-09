@@ -38,7 +38,7 @@ def normalise_minmax(matrix):
     return matrix
 
 def get_experiment_names():
-    names = ['linear_nonunique_1','linear_nonunique_1.1','linear_nonunique_1.2','linear_unique_1','linear_unique_2','algebraic_nonunique_1',
+    names = [ls,'algebraic_nonunique_1',
     'algebraic_nonunique_kdv', 'analytic_unique_1', 'analytic_unique_2','analytic_nonunique_1']
     exp_name_dict = {}
     for name in names:
