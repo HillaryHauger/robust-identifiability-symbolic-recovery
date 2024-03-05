@@ -122,7 +122,7 @@ def upper_bound_singular_matrix(C,eps):
         print(f"Error is too big C<eps with C = {C:.3e}, eps = {eps:.3e}: no upper bound can be calculated")
         return 1.0
         
-    bound= eps/(C-eps)*np.sqrt(1+(eps/(C-eps))**2) 
+    bound= eps/(C-eps)
     bound = min(bound, 1.0) # o_min/o_max <=1 in all cases
     return bound
 
