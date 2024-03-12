@@ -1,85 +1,162 @@
 import numpy as np
-##############################################################
-####   Functions for bounding finite differences error   #####
-##############################################################
+
+#######################################################################################################
+####   Functions for bounding finite differences error up to third derivative central differences #####
+#######################################################################################################
+
 """
-Computes the coefficients of the derivitve of the kth Lagrangian Coefficients.
+This calculates the derivative (up to third) of the residue r of the Lagrange polynomial.
+It is needed for calculating the approximation error
+Cu: We assume that all derivatives of u up order_fd+order_derivative can be bounded by Cu
+Cxi: We assume that all derivatives of xi up to order_fd can be bounded by Cxi
+h: h is the space between data points
+order_derivative: is the order of the derivative
+"""
+def derivative_r(n,order_derivative,h,Cu,Cxi,m):
+
+    if order_derivative>3:
+        print(f"Derivative {order_derivative} is not implemented yet")
+        return None
+        
+    result = 0.0
+    pre = np.math.factorial(n + 1)
+
+    #Calculate all products and sums necesseary for calculating the result
+    if order_derivative>=1:
+        product_term1=1.0
+        for k in range(n + 1):
+            if k != m:
+                product_term1 *= (m - k)
+        product_term1=abs(product_term1)
+
+    if order_derivative  >=2:
+        product_sum_term2 = 0.0
+        for s in range(n + 1):
+            if s!=m:
+                product_term2 = 1.0
+                for k in range(n + 1):
+                    if k!=m and k!=s:
+                        product_term2 *= (m - k)  
+                product_sum_term2 += product_term2
+        product_sum_term2=abs(product_sum_term2)
+        
+    if order_derivative >=3:
+        product_sum_term3 = 0.0
+  
+        for s1 in range(n + 1):
+                for s2 in range(s1+1,n + 1):
+                        if s1!=m and s2!=m:
+                            product_term3 = 1.0
+                            for k in range(n + 1):
+                                if k!=s1 and k!=s2 and k!=m and n!=2:
+                                    product_term3 *= (m - k)
+                            product_sum_term3 += 6*product_term3          
+        product_sum_term3=abs(product_sum_term3)
+        
+        
+    #Put everything together           
+    if order_derivative==1:
+        result = Cu*product_term1/pre*(h**n)
+    elif order_derivative==2:
+        result = Cxi*Cu*2*product_term1/pre*h**n + Cu*product_sum_term2/pre*h**(n-1)
+    elif order_derivative==3:
+        result = 3*((Cxi**2)*Cu+Cu*Cxi)*product_term1/pre*h**n + 3*Cu*Cxi*product_sum_term2/pre*h**(n-1) +Cu*product_sum_term3/pre*h**(n-2)
+    return result
+
+    
+
+"""
+Computes the coefficients of the derivative of the kth Lagrangian Coefficients.
 These are also the coefficients used for finite differences.
+It is needed for calculating the measurement error
 n: number of data points used for approximation/ order
 k: number of lagrange coefficient
 l: input to lagrange coefficient: x = x_l = x+ hl
+h: h is the space between data points
+order_derivative: order of the derivative, can take values 1,2,3
 """
-def lagrange_coefficient_derivative(n,k,l):
-    erg=0.0        
-    for j in range(n+1):
-        if j!=k:
-            tmp =1.0
-            for i in range(n+1):
-                  if i!=k and i!=j:
-                    tmp *=(l-i)/(k-i)
-                    #print(f"l-k = {l}-{i}")
-            tmp*=1.0/(k-j)
-            erg+=tmp
-    return erg
+
+def derivative_Lnk(n,k,l,order_derivative,h):
+    #Calculate preceeding product, same for all derivatives
+    product_pre= 1.0
+    for i in range(n + 1):
+        if i != k:
+            product_pre *= 1 / (k - i)        
+    result=0.0 
+
+    if order_derivative == 1: 
+        result =1.0
+        for i in range(n+1):
+              if i!=k and i!=l and k!=l:
+                result *=(l-i)     
+        if l==k:
+            result = 0.0
+
+    elif order_derivative == 2:
+        for s2 in range(n + 1):
+            for s1 in range(s2+1,n + 1):
+                product_1 = 1.0
+                if s1!=k and s2!=k:
+                    for i in range(n + 1):
+                        if i != k and i != s1 and i != s2:
+                            product_1 *= (l - i)
+                else:
+                    product_1 = 0.0
+                result += 2*product_1
+
+
+    elif order_derivative == 3:
+        for s3 in range(n + 1):
+            for s2 in range(s3+1,n + 1):
+                for s1 in range(s2+1,n + 1):
+                    if s1!=k and s2!=k and s3!=k:
+                        product_1=1.0
+                        for i in range(n + 1):
+                            if i != k and i != s1 and i != s2 and i != s3:
+                                product_1 *= (l - i)
+                    else:
+                        product_1=0.0
+                    result += 6*product_1
+
     
-"""
-Sums up the above coefficients and is needed for calculating the measurment error
-n: number of data points used for approximation/ order
-l: input to lagrange coefficient: x = x_l = x+ hl
-"""
-def sum_lagrange_coefficient_derivative(n,l):
-    erg=0.0
-    for k in range(n+1):
-        #print(f"L({n},{k},{l}) = {lagrange_coefficient_derivative(n,k,l)}")
-        erg+= np.abs(lagrange_coefficient_derivative(n,k,l))
-    return erg
+    else:
+        print(f"Derivative {order_derivative} is not implemented yet")
+        result=None
+    return result*product_pre/h**(order_derivative)
 
 """
-Approximation error for central differences: reduces with higher order
-The approximation error is caused by finite differences itself.
+This returns the measurement and approximation constants of calculating finite differences
 """
-def appr_error_central_diff(order):
-    assert(order%2==0) #Check if n is even
-    bound = (np.math.factorial(int(order/2))**2)/np.math.factorial(order+1)
-    return bound
-    
-# Approximation error backward differences
-def appr_error_backward_diff(n):
-    return 1/(n+1)
-
-"""
-Measurement error for central differences.
-The measurement error is caused round off errors and does not decrease for higher order.
-"""
-def meas_error_central_diff(n):
-    assert(n%2==0) #Check if n is even
-    erg=sum_lagrange_coefficient_derivative(n,n/2)
-    return erg
-    
-# Measurement error backward differences
-def meas_error_backward_diff(n):
-    erg=sum_lagrange_coefficient_derivative(n,0)
-    return erg
+def get_measurement_approximation_error(order_fd, order_derivative,m,h,Cu,Cxi):
+     #Get measurement error
+    C_meas=0.0
+    for k in range(order_fd+1):
+            lagrange_der=derivative_Lnk(order_fd,k,m,order_derivative,h)
+            C_meas += abs(lagrange_der)
+    #Calculate approximation error
+    C_app  = derivative_r(order_fd,order_derivative,h,Cu,Cxi,m)
+    return C_meas,C_app
     
 """
-Error bound on the first derivative calculated with finite differences
-eps: measurement error+round of error
-h: dx for equispaced data
-M: bound on (order+1)th derivative
+This calcuates an upper bound on the error of central differences.
+Cu: We assume that all derivatives of u up order_fd+order_derivative can be bounded by Cu
+Cxi: We assume that all derivatives of xi up to order_fd can be bounded by Cxi
+h: h is the space between data points
+eps: eps is the upper bound on the noise on u |u-u_noise|_infty < eps
+order_fd: is the finite difference_order
+order_derivative: is the order of the derivative
 """
-def error_bound_finite_diff(eps,h,M,order=2):
-    eps+=np.finfo(float).eps # add machine precisoin
-    if order%2==0: #even order
-        C_app=appr_error_central_diff(order)
-        C_meas=meas_error_central_diff(order)
-    else: # odd order
-        C_app=appr_error_backward_diff(order)
-        C_meas=meas_error_backward_diff(order)
-    #print(f" C_meas*eps/h + (h**order)*M*C_app = {C_meas:2.3e}*{eps:2.3e}/{h:2.3e} + {h**order:2.3e}*{M:2.3e}*{C_app:2.3e}")    
-    return C_meas*eps/h + (h**order)*M*C_app
-            
-def infinity_norm(x):
-    return np.max(np.abs(x))
+def upper_bound_central_differences(eps,order_fd,order_derivative,Cu,Cxi,h):
+    if order_derivative>3:
+        print(f"Derivative {order_derivative} is not implemented yet")
+        return None
+    if order_fd%2!=0:
+        print(f"Only central differences is implemented, finite differences order {order_fd} can not be calculated")
+        return None
+    m=int(order_fd/2)
+    C_meas,C_app = get_measurement_approximation_error(order_fd,order_derivative,m,h,Cu,Cxi)
+    upper_bound = C_app+eps*C_meas
+    return upper_bound
 
 ##############################################################
 ####       Functions for bounding condition error        #####
