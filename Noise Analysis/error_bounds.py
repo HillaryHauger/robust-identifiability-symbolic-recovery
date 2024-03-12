@@ -1,5 +1,8 @@
 import numpy as np
 
+def infinity_norm(x):
+    return np.max(np.abs(x))
+    
 #######################################################################################################
 ####   Functions for bounding finite differences error up to third derivative central differences #####
 #######################################################################################################
@@ -169,8 +172,12 @@ h: dx for equispaced data
 number_datapoints: number of total datapoints where u is evaluated
 M: bound on nth derivative depending on the order
 """
-def error_bound_g(eps_two,eps_infty,h,number_datapoints,M,order):
-    E = eps_two**2 + number_datapoints*error_bound_finite_diff(eps_infty,h,M,order)**2
+def error_bound_g(eps_two,eps_infty,h,number_datapoints,order_fd, max_order_derivative=1,Cu=1.0,Cxi=1.0):
+    E = eps_two**2
+    #Add error bound for each order
+    for order_derivative in range(1,max_order_derivative+1):
+       # print(order_derivative)
+        E+=number_datapoints*upper_bound_central_differences(eps_infty,order_fd,order_derivative,Cu,Cxi,h)**2
     return E
 
 """
