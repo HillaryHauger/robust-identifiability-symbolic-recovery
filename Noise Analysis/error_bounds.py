@@ -197,7 +197,6 @@ def error_bound_condition(E,sv_max,sv_min):
 
 """
 This function should upper bound the reversed condition for singular matrices 
-where on>C2>0
 C1:lower bound of biggest singular value: C <= o_max
 eps: lower obund for frobenius norm of error matrix |E|_F <= eps
 """
