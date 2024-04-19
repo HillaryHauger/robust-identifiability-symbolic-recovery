@@ -202,7 +202,7 @@ eps: lower obund for frobenius norm of error matrix |E|_F <= eps
 """
 def upper_bound_singular_matrix(C,eps):
     if C-eps<=0:
-        print(f"Error is too big C<eps with C = {C:.3e}, eps = {eps:.3e}: no upper bound can be calculated")
+        #print(f"Error is too big C<eps with C = {C:.3e}, eps = {eps:.3e}: no upper bound can be calculated")
         return 1.0
         
     bound= eps/(C-eps)
