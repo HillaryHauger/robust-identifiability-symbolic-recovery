@@ -207,6 +207,7 @@ def upper_bound_singular_matrix(C,eps):
         
     bound= eps/(C-eps)
     bound = min(bound, 1.0) # o_min/o_max <=1 in all cases
+    #print(f"UB: {bound:.3e} = {eps:.3e}/({C:.3e}-{eps:.3e})")
     return bound
 
 """
@@ -220,6 +221,7 @@ The question is how to choose C2??
 def lower_bound_nonsingular_matrix(C1,C2,eps):
     bound= (C2-eps)/(C1+eps)
     bound = max(bound,1e-10)
+    #print(f"LB: {bound:.3e} = ({C2:.3e}-{eps:.3e})/({C1:.3e}+{eps:.3e})")
     return bound
     
 """Threshold if values are beneath classify as non unique PDE
