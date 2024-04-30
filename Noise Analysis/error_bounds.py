@@ -220,7 +220,7 @@ The question is how to choose C2??
 """
 def lower_bound_nonsingular_matrix(C1,C2,eps):
     bound= (C2-eps)/(C1+eps)
-    bound = max(bound,1e-10)
+    bound = max(bound,0.0)
     #print(f"LB: {bound:.3e} = ({C2:.3e}-{eps:.3e})/({C1:.3e}+{eps:.3e})")
     return bound
     
