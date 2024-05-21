@@ -3,6 +3,8 @@
 
 import numpy as np
 import sympy
+from sympy import diff
+from sympy.utilities.lambdify import lambdify
 
 def create_data_2d(T_start=0, T_end=5, L_x_start=-5,L_x_end=5, N_t=200, N_x=200):
     t = np.linspace(T_start, T_end, num=N_t)
@@ -16,6 +18,10 @@ def create_data_3d(T_start, T_end, L_x,L_y, N_t, N_x,N_y):
     y = np.linspace(-L_y/2.0, L_y/2.0, num=N_y)
     T,X,Y = np.meshgrid(t,x,y)
     return T,X,Y,t,x,y
+
+            
+def infinity_norm(x):
+    return np.max(np.abs(x))
 
 # adds noise to data dependent on norm
 def add_noise(u,target_noise,seed=1234):
@@ -46,8 +52,37 @@ def get_experiment_names():
         exp_name_dict[name] = formula
     return exp_name_dict
 
-def experiment_data(n_samples, experiment_name):
+"""
+get upper bound on the fd_order +deriv_order derivative of u
+"""
+def get_upper_bound_fd_order(formula,deriv_symbol,X,T,fd_order,deriv_order):
+    formula_nplus1 = diff(formula,sympy.Symbol(deriv_symbol),fd_order+deriv_order)
+    x_sym=sympy.Symbol('x')
+    t_sym=sympy.Symbol('t')
+    func = lambdify((x_sym,t_sym), formula_nplus1,'numpy') # returns a numpy-ready function
+    value_nplus1 = func(X,T)
+    up = infinity_norm(value_nplus1)
+    return up
+"""
+get upper bound on all derivatives from fd_order+1 to fd_order+deriv_order derivative of u
+"""
+def get_upper_bound_all_deriv_up_tofd_order(formula,deriv_symbol,X,T,fd_order,deriv_order):
+    upper_bounds = []
+    for deriv in range(fd_order,fd_order+deriv_order):
+        up = get_upper_bound_fd_order(formula,deriv_symbol,X,T,deriv,1)
+        upper_bounds.append(up)
+    total_up = np.max(upper_bounds)        
+    return total_up
     
+"""
+This function create the data for experiments
+n_samples: number of samples used for x and t
+experiment_name: the name of the exepriment
+seed: set the numpy random seed
+fd_order: If specified it will calculated the inifinity norm on the f_order+1 derivative of u 
+"""
+def experiment_data(n_samples, experiment_name,seed=1234):
+    np.random.seed(seed)
     if experiment_name == 'linear_nonunique_1':
         T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         a= np.random.randn()
@@ -164,4 +199,5 @@ def experiment_data(n_samples, experiment_name):
         raise NotImplementedError(f'Experiment {experiment_name} not implemented yet.')
         
     return u,x,t,formula
+
 

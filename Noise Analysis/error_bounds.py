@@ -10,7 +10,7 @@ def infinity_norm(x):
 """
 This calculates the derivative (up to third) of the residue r of the Lagrange polynomial.
 It is needed for calculating the approximation error
-Cu: We assume that all derivatives of u up order_fd+order_derivative can be bounded by Cu
+Cu: We assume that all derivatives of u from order_fd+1 to order_fd+order_derivative can be bounded by Cu
 Cxi: We assume that all derivatives of xi up to order_fd can be bounded by Cxi
 h: h is the space between data points
 order_derivative: is the order of the derivative
