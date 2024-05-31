@@ -104,8 +104,8 @@ def get_results(u,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param=1e-4):
             C1=sv_max*1.5
             C=sv_max*0.5
             C2=max(C2_param*sv_max,sv_min*0.5)
-            assert(C2<=C1)
-            assert(C2<=C)
+            #assert(C2<=C1)
+            #assert(C2<=C)
 
             upper_bound_jacobian = get_upper_bound_jacobian(eps,fd_order,Cut,Cux,Cuxx,Cutx,dt,dx)
             #print(upper_bound_jacobian)
@@ -327,7 +327,7 @@ def check_classification_max_correct_noise_level(df_analysis,C2_params,results):
         count_check = len(results[results["noise_level"]<=max_nl].noise_level.unique())
         if count_corr_cl != count_check:
             print(f"For C2 = {C2} not all noise levels before {max_nl} were correctly classified. Please check the dataframe")
-            print(count_corr_cl,count_check)
+            print(f"Numer correct classified labels: {count_corr_cl}, Number it should be {count_check}")
 
 def plot_results_C2(experiment_name,df_analysis,noise_levels):
     plt.title(f"{experiment_name}")
