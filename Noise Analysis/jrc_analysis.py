@@ -104,8 +104,11 @@ def get_results(u,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param=1e-4):
             C1=sv_max*1.5
             C=sv_max*0.5
             C2=max(C2_param*sv_max,sv_min*0.5)
+            assert(C2<=C1)
+            assert(C2<=C)
 
             upper_bound_jacobian = get_upper_bound_jacobian(eps,fd_order,Cut,Cux,Cuxx,Cutx,dt,dx)
+            #print(upper_bound_jacobian)
             lower_bound = lower_bound_nonsingular_matrix(C1,C2,upper_bound_jacobian)
             upper_bound = upper_bound_singular_matrix(C,upper_bound_jacobian)
 
@@ -150,11 +153,14 @@ def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,ticks
         
         upper_minus_svs = upper_bounds - svs
         lower_minus_svs = lower_bounds -svs
-        max_svs= np.max(np.abs(upper_minus_svs))
-        #Plot difference to upper bound
-        plt.suptitle(subtitle, fontsize=tickssize,y=1.1)
-     
         
+        max_lower_svs= np.max(np.abs(lower_minus_svs))
+        max_upper_svs = np.max(np.abs(upper_minus_svs))
+        #max_svs = max(max_lower_svs, max_upper_svs)
+    
+        #Plot difference to upper bound
+        max_svs = max_upper_svs
+        plt.suptitle(subtitle, fontsize=tickssize,y=1.1)
         axes[i//2,i*3%6+1].set_title(f'Noise level {noise_level} \n Non Unique', fontsize=tickssize)
         c=axes[i//2,i*3%6+1].pcolor(t_grid, x_grid, upper_minus_svs,cmap=cmap_red_green,vmin=-max_svs, vmax=max_svs)
         axes[i//2,i*3%6+1].set_yticks([])
@@ -162,8 +168,7 @@ def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,ticks
         
        
         #Plot difference to lower bound
-        lower_minus_svs = lower_bounds  -svs
-        max_svs= np.max(np.abs(lower_minus_svs))
+        max_svs = max_lower_svs
         axes[i//2,i*3%6+2].set_title('Unique', fontsize=tickssize)
         c = axes[i//2,i*3%6+2].pcolor(t_grid, x_grid, lower_minus_svs, cmap=cmap_green_red, vmin=-max_svs, vmax=max_svs)
         axes[i//2,i*3%6+2].set_yticks([])
@@ -208,17 +213,19 @@ def plot_results(upper_bounds, lower_bounds,svs,time_range,space_range,t, x,subt
     
     upper_minus_svs = upper_bounds - svs # <= 0 if unique >= 0 if non-unique
     lower_minus_svs = lower_bounds - svs # <= 0 if unique >= 0 if non-unique
-    max_svs= np.max(np.abs(upper_minus_svs))
+    max_lower_svs= np.max(np.abs(lower_minus_svs))
+    max_upper_svs = np.max(np.abs(upper_minus_svs))
+    max_svs = max(max_lower_svs, max_upper_svs)
+    
     #Plot difference to upper bound
     plt.suptitle(subtitle, fontsize=subtitle_size,y=1.1)
-    
     axes[1].set_title('Non Unique', fontsize=tickssize)
     c=axes[1].pcolor(t_grid, x_grid, upper_minus_svs,cmap=cmap_red_green,vmin=-max_svs, vmax=max_svs)
     axes[1].set_yticks
     fig.colorbar(c, ax=axes[1])
     
     #Plot difference to lower bound
-    max_svs= np.max(np.abs(lower_minus_svs))
+    
     axes[2].set_title('Unique', fontsize=tickssize)
     c = axes[2].pcolor(t_grid, x_grid, lower_minus_svs, cmap=cmap_green_red, vmin=-max_svs, vmax=max_svs)
     axes[2].set_yticks([])
