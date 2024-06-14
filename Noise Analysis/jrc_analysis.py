@@ -100,10 +100,11 @@ def get_results(u,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param=1e-4):
             sv_fd = svd(jacobian_fd, compute_uv=False)
             sv_min =sv_fd[-1]
             sv_max =sv_fd[0]
-    
+            #print(f"sv_min, {sv_min:.3e}")
             C1=sv_max*1.5
             C=sv_max*0.5
             C2=max(C2_param*sv_max,sv_min*0.5)
+            #print(f"C2 {C2:.3e}")
             #assert(C2<=C1)
             #assert(C2<=C)
 

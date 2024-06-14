@@ -158,4 +158,4 @@ def get_result_df(u,dx,noise_levels,orders=range(2,10,2),max_order_derivative=1,
             result.loc[len(result.index)] = [noise_level,order,ratio,threshold_approx_uniq,threshold_exact_uniq,threshold_approx_nonuniq,threshold_exact_nonuniq,sv[0],sv[-1],C,C1,C2]
 
     return result
-        
+
