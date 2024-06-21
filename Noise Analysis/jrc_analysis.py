@@ -68,6 +68,40 @@ def get_Cut_Cux_Cuxx_Cutx(formula,X,T,fd_order):
     return (Cut, Cux, Cuxx, Cutx)
 
 """
+get upper bound on the fd_order +deriv_order derivative of u with finite differnces
+"""
+def get_upper_bound_fd_order_withfd(u,axis,t,fd_order,deriv_order):
+    u_deriv = ps.FiniteDifference(order=fd_order, d=fd_order+deriv_order, axis=axis, drop_endpoints=False)._differentiate(u, t=t)
+    up = infinity_norm(u_deriv)
+    return up
+
+
+"""
+get upper bound on all derivatives from fd_order+1 to fd_order+deriv_order derivative of u
+with using finite differences
+"""
+def get_upper_bound_all_deriv_up_tofd_order_fd(u,axis,t,fd_order,deriv_order):
+    upper_bounds = []
+    for deriv in range(fd_order,fd_order+deriv_order):
+        up = get_upper_bound_fd_order_withfd(u,axis,t,deriv,1)
+        upper_bounds.append(up)
+    #print("upper bound", upper_bounds)
+    total_up = np.max(upper_bounds)   
+    #print(total_up)
+    return total_up
+"""
+This function calculates the upper bounds for the derivative u fd_order+deriv_order
+for ut, ux, uxx and utx with finite differences
+"""
+def get_Cut_Cux_Cuxx_Cutx_fd(u,dx,dt,fd_order):
+    Cut = get_upper_bound_all_deriv_up_tofd_order_fd(u,1, dt,fd_order,deriv_order=1)
+    Cux = get_upper_bound_all_deriv_up_tofd_order_fd(u,0, dx,fd_order,deriv_order=1)
+    Cuxx = get_upper_bound_all_deriv_up_tofd_order_fd(u,0,dx,fd_order,deriv_order=2)
+    ut = ps.FiniteDifference(order=fd_order, d=1, axis=1, drop_endpoints=drop_endpoints)._differentiate(u, t=dt)
+    Cutx = get_upper_bound_all_deriv_up_tofd_order_fd(u,0,dx,fd_order,deriv_order=1)
+    return (Cut, Cux, Cuxx, Cutx)
+
+"""
 This function calculates the singular values, lower and upper bounds for a function u
 and an fd_order for different datapoints speficied in space and time range
 u: function u
@@ -123,7 +157,7 @@ This function performs one experiment for an experiment_name.
 It fethches the data and calculates the svs,lower_bounds,upper_bounds for all noise_levels.
 Additionally it plots the results.
 """
-def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,tickssize=16):
+def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,tickssize=16,exact_upper_bounds=False):
     
     #Get data,
     u,x,t,formula = experiment_data(n_samples=150,experiment_name=experiment_name)
@@ -132,13 +166,19 @@ def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,ticks
     print(f"Performing experiment {experiment_name} {formula} with order {fd_order}, C2 = {C2_param:.2e}")
     subtitle=f"Experiment {experiment_name} {formula}, Order {fd_order}, C2_param = {C2_param:.2e}"
     T,X = np.meshgrid(t,x)
-    C_upper_bounds_deriv = get_Cut_Cux_Cuxx_Cutx(formula,X,T,fd_order)
+    
+    if exact_upper_bounds:
+        C_upper_bounds_deriv = get_Cut_Cux_Cuxx_Cutx(formula,X,T,fd_order)
+       
 
     
     fig, axes = plt.subplots(2,6, figsize=(24,8))
     
     for i,noise_level in enumerate(noise_levels):
         u_noise = add_noise(u,noise_level)
+        #Culcuate Cut, Cux, Cuxx, Cutx with noisy FD
+        if ~exact_upper_bounds:
+            C_upper_bounds_deriv = get_Cut_Cux_Cuxx_Cutx_fd(u,dx,dt,fd_order)
         eps = infinity_norm(u-u_noise)
         
         svs, lower_bounds,upper_bounds,space_range,time_range = get_results(u_noise,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param)   

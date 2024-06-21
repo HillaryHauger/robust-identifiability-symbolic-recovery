@@ -94,6 +94,18 @@ def experiment_data(n_samples, experiment_name,seed=1234):
             return f
         u = func(T,X,np) 
         formula = func(T,X,sympy)
+        
+    elif experiment_name == 'linear_unique_1':
+        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
+        a,b= np.random.randn(2)
+        def func(T,X, module): 
+            if module == sympy:
+                T = sympy.Symbol('t')
+                X= sympy.Symbol('x')
+            f = (X+b*T)*module.exp(a*T)
+            return f
+        u = func(T,X,np) 
+        formula = func(T,X,sympy)
 
 
     elif experiment_name == 'linear_unique_1.1':
@@ -142,9 +154,9 @@ def experiment_data(n_samples, experiment_name,seed=1234):
             return f
         u = func(T,X,np) 
         formula = func(T,X,sympy)
-
+    #This is not always non unique -> depends on which derivatives Im using
     elif experiment_name == 'algebraic_nonunique_kdv':
-        T,X,t,x = create_data_2d(T_start=1, T_end=5, L_x_start=1,L_x_end=5,N_t=n_samples,N_x=n_samples)
+        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         c = np.abs(np.random.randn())
         def func(T,X, module): 
             if module == sympy:
@@ -184,7 +196,7 @@ def experiment_data(n_samples, experiment_name,seed=1234):
         formula = func(T,X,sympy)
 
     elif experiment_name == 'analytic_nonunique_1':
-        T,X,t,x = create_data_2d(T_start=0, T_end=5, L_x_start=0,L_x_end=5,N_t=n_samples,N_x=n_samples)
+        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
         a = np.abs(np.random.randn())
         def func(T,X, module): 
             if module == sympy:
