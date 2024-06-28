@@ -130,11 +130,11 @@ def get_results(u,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param=1e-4):
         for j in range(time_range):
             x_i, t_j = i * 10 + 10, j * 10 + 10
             jacobian_fd = np.array([[ut_fd[x_i,t_j], ux_fd[x_i,t_j]], [utx_fd[x_i,t_j], uxx_fd[x_i,t_j]]]).reshape(2,2)
-
+            #print(jacobian_fd)
             sv_fd = svd(jacobian_fd, compute_uv=False)
             sv_min =sv_fd[-1]
             sv_max =sv_fd[0]
-            #print(f"sv_min, {sv_min:.3e}")
+            #print(f"sv_min, {sv_min:.3e}, sv_max: {sv_max:3e}, {sv_min/sv_max}")
             C1=sv_max*1.5
             C=sv_max*0.5
             C2=max(C2_param*sv_max,sv_min*0.5)

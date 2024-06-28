@@ -154,10 +154,21 @@ def experiment_data(n_samples, experiment_name,seed=1234):
             return f
         u = func(T,X,np) 
         formula = func(T,X,sympy)
+    elif experiment_name == 'algebraic_nonunique_2':
+        # solves ut = -ux = -1/2u^2
+        T,X,t,x = create_data_2d(T_start=1, T_end=5, L_x_start=1,L_x_end=5,N_t=n_samples,N_x=n_samples)
+        def func(T,X, module): 
+            if module == sympy:
+                T = sympy.Symbol('t')
+                X= sympy.Symbol('x')
+            f = 1/module.sqrt(X+T)
+            return f
+        u = func(T,X,np) 
+        formula = func(T,X,sympy)
     #This is not always non unique -> depends on which derivatives Im using
     elif experiment_name == 'algebraic_nonunique_kdv':
-        T,X,t,x = create_data_2d(N_t=n_samples,N_x=n_samples)
-        c = np.abs(np.random.randn())
+        T,X,t,x = create_data_2d(T_start=0, T_end=0.2, L_x_start=-1,L_x_end=11,N_t=100,N_x=200)
+        c = np.abs(np.random.randn())+10
         def func(T,X, module): 
             if module == sympy:
                 T = sympy.Symbol('t')
