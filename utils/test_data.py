@@ -5,6 +5,7 @@ import numpy as np
 import sympy
 from sympy import diff
 from sympy.utilities.lambdify import lambdify
+from utils.utils import infinity_norm
 
 def create_data_2d(T_start=0, T_end=5, L_x_start=-5,L_x_end=5, N_t=200, N_x=200):
     t = np.linspace(T_start, T_end, num=N_t)
@@ -18,10 +19,6 @@ def create_data_3d(T_start, T_end, L_x,L_y, N_t, N_x,N_y):
     y = np.linspace(-L_y/2.0, L_y/2.0, num=N_y)
     T,X,Y = np.meshgrid(t,x,y)
     return T,X,Y,t,x,y
-
-            
-def infinity_norm(x):
-    return np.max(np.abs(x))
 
 # adds noise to data dependent on norm
 def add_noise(u,target_noise,seed=1234):

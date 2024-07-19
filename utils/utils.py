@@ -1,4 +1,8 @@
 import matplotlib.pyplot as plt
+import numpy as np
+
+def infinity_norm(x):
+    return np.max(np.abs(x))
 
 def plot_result_jacobi(svs,t_grid,x_grid,target_noise=0,
                        titlesize=18,subtitle_size=16,labelsize=16,tickssize=16,fd_orders=[2,7]):

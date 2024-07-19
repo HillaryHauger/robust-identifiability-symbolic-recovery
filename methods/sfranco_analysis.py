@@ -1,15 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from numpy.linalg import matrix_rank, svd
+from numpy.linalg import svd
 import pandas as pd
 import pysindy as ps
-import sys
-sys.path.append('../')
-from test_data import *
-from error_bounds_fd import *
+from utils.test_data import *
+from methods.error_bounds import *
 
 #Plots classification for different noise leevels
-def plot_uniq_non_uniq_class_with_noise_levels(noise_levels,result,image_path,title='Classification for different Noise Levels'):
+def plot_uniq_non_uniq_class_with_noise_levels(noise_levels,result,image_path=None,title='Classification for different Noise Levels'):
     num_cols = 4
     num_rows = int(np.ceil(len(noise_levels)/num_cols))
     fig, axs = plt.subplots(num_rows, num_cols,  figsize=(5*num_cols, 4 *num_rows))
@@ -19,19 +17,14 @@ def plot_uniq_non_uniq_class_with_noise_levels(noise_levels,result,image_path,ti
     j=0
     for i, noise_level in enumerate(noise_levels,start=0):
         df = result[result["noise_level"] == noise_level]
-        #print(f"i {i}")
-        #print(i//(num_rows+1), j%(num_cols))
+  
  
         axs[i//(num_rows+1), j%(num_cols)].set_title(f"Noise Level {noise_level}")
-        axs[i//(num_rows+1), j%(num_cols)].plot(df["ratio"], color='blue')
-        #axs[i//(num_rows+1), j%(num_cols)].plot(df["threshold_approx_nonuniq"], '--', label='T approx', color='green')
-        axs[i//(num_rows+1), j%(num_cols)].plot(df["threshold_exact_nonuniq"], ':', label='non unique', color='aquamarine')
-        #axs[i//(num_rows+1), j%(num_cols)].fill_between(df.index, 0, df["threshold_approx_nonuniq"], color='green', alpha=0.3)
+        axs[i//(num_rows+1), j%(num_cols)].plot(df["ratio"], color='blue',label =r"$\rho(\tilde{G})$")
+        axs[i//(num_rows+1), j%(num_cols)].plot(df["threshold_exact_nonuniq"], ':', label="non unique", color='aquamarine')
         axs[i//(num_rows+1), j%(num_cols)].fill_between(df.index, 0, df["threshold_exact_nonuniq"], color='aquamarine', alpha=0.3)
         
-        #axs[i//(num_rows+1), (j)%num_cols].plot(df["threshold_approx_uniq"], '--', label='Threshold approx', color='red')
-        axs[i//(num_rows+1), (j)%num_cols].plot(df["threshold_exact_uniq"], ':', label='unique', color='coral')
-        #axs[i//(num_rows+1), (j)%num_cols].fill_between(df.index, df["threshold_approx_uniq"], y2=result["ratio"].max(), color='red', alpha=0.3)
+        axs[i//(num_rows+1), (j)%num_cols].plot(df["threshold_exact_uniq"], ':', label="unique", color='coral')
         axs[i//(num_rows+1), (j)%num_cols].fill_between(df.index, df["threshold_exact_uniq"], y2=result["ratio"].max(), color='coral', alpha=0.3)
         axs[i//(num_rows+1), (j)%num_cols].set_yscale('log')
         
@@ -56,7 +49,7 @@ def plot_uniq_non_uniq_class_with_noise_levels(noise_levels,result,image_path,ti
         j+=1
     
     # Show the plot
-    fig.savefig(image_path)
+    #fig.savefig(image_path)
     plt.show()
 
 def classify_string(linear_string):
