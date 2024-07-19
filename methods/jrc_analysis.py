@@ -1,7 +1,7 @@
 from error_bounds_fd import *
 import numpy as np
 import pysindy as ps
-from test_data import *
+from utils.test_data import *
 import sympy
 from numpy.linalg import svd
 from matplotlib.colors import LinearSegmentedColormap
@@ -129,20 +129,15 @@ def get_results(u,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param=1e-4):
         for j in range(time_range):
             x_i, t_j = i * 10 + 10, j * 10 + 10
             jacobian_fd = np.array([[ut_fd[x_i,t_j], ux_fd[x_i,t_j]], [utx_fd[x_i,t_j], uxx_fd[x_i,t_j]]]).reshape(2,2)
-            #print(jacobian_fd)
+
             sv_fd = svd(jacobian_fd, compute_uv=False)
             sv_min =sv_fd[-1]
             sv_max =sv_fd[0]
-            #print(f"sv_min, {sv_min:.3e}, sv_max: {sv_max:3e}, {sv_min/sv_max}")
             C1=sv_max*1.5
             C=sv_max*0.5
             C2=max(C2_param*sv_max,sv_min*0.5)
-            #print(f"C2 {C2:.3e}")
-            #assert(C2<=C1)
-            #assert(C2<=C)
 
             upper_bound_jacobian = get_upper_bound_jacobian(eps,fd_order,Cut,Cux,Cuxx,Cutx,dt,dx)
-            #print(upper_bound_jacobian)
             lower_bound = lower_bound_nonsingular_matrix(C1,C2,upper_bound_jacobian)
             upper_bound = upper_bound_singular_matrix(C,upper_bound_jacobian)
 
@@ -168,8 +163,6 @@ def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,ticks
     
     if exact_upper_bounds:
         C_upper_bounds_deriv = get_Cut_Cux_Cuxx_Cutx(formula,X,T,fd_order)
-       
-
     
     fig, axes = plt.subplots(2,6, figsize=(24,8))
     
@@ -184,7 +177,7 @@ def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,ticks
         t_grid, x_grid = (np.arange(time_range) * 10 + 10) / len(t) * (t[len(t)-1] - t[0]) + t[0], (np.arange(space_range) * 10 + 10) / len(x) * (x[len(x)-1] - x[0]) + x[0]
      
         #Plot the ratios
-    
+
         c = axes[i//2,i*3%6+0].pcolor(t_grid, x_grid, svs)
         axes[i//2,i*3%6+0].set_title(r"$\frac{\sigma_n}{\sigma_1}$", fontsize=tickssize)
         axes[i//2,i*3%6+0].set_ylabel('x', fontsize=tickssize)

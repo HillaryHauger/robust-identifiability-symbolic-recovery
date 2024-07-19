@@ -1,7 +1,5 @@
 import numpy as np
-
-def infinity_norm(x):
-    return np.max(np.abs(x))
+from utils.utils import infinity_norm
     
 #######################################################################################################
 ####   Functions for bounding finite differences error up to third derivative central differences #####
