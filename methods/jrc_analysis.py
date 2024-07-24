@@ -153,9 +153,10 @@ def get_results(u,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param=1e-4):
             lower_bounds[i,j]=lower_bound
             upper_bounds[i,j]=upper_bound
     return svs, lower_bounds,upper_bounds,space_range,time_range
+    
 """
 This function performs one experiment for an experiment_name.
-It fethches the data and calculates the svs,lower_bounds,upper_bounds for all noise_levels.
+It fetches the data and calculates the svs,lower_bounds,upper_bounds for all noise_levels.
 Additionally it plots the results.
 """
 def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,tickssize=16,exact_upper_bounds=False):

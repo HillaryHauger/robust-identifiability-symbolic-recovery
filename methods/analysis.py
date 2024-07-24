@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 """
-Functions for calculating how many notebooks where correctly classified my NR-FRanCO and JRC
+Functions for calculating how many functions where correctly classified by NR-FRanCO and JRC
 depending on noise level and finite difference order.
 """
 
