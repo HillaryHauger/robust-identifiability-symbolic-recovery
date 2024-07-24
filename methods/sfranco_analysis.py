@@ -18,14 +18,14 @@ def plot_uniq_non_uniq_class_with_noise_levels(noise_levels,result,image_path=No
     for i, noise_level in enumerate(noise_levels,start=0):
         df = result[result["noise_level"] == noise_level]
   
- 
+        max_val = max(result["ratio"].max(),df["threshold_exact_uniq"].max(),df["threshold_exact_nonuniq"].max()) 
         axs[i//(num_rows+1), j%(num_cols)].set_title(f"Noise Level {noise_level}")
         axs[i//(num_rows+1), j%(num_cols)].plot(df["ratio"], color='blue',label =r"$\rho(\tilde{G})$")
         axs[i//(num_rows+1), j%(num_cols)].plot(df["threshold_exact_nonuniq"], ':', label="non unique", color='aquamarine')
         axs[i//(num_rows+1), j%(num_cols)].fill_between(df.index, 0, df["threshold_exact_nonuniq"], color='aquamarine', alpha=0.3)
         
         axs[i//(num_rows+1), (j)%num_cols].plot(df["threshold_exact_uniq"], ':', label="unique", color='coral')
-        axs[i//(num_rows+1), (j)%num_cols].fill_between(df.index, df["threshold_exact_uniq"], y2=result["ratio"].max(), color='coral', alpha=0.3)
+        axs[i//(num_rows+1), (j)%num_cols].fill_between(df.index, df["threshold_exact_uniq"], y2=max_val, color='coral', alpha=0.3)
         axs[i//(num_rows+1), (j)%num_cols].set_yscale('log')
         
         #Only show legend in first plot
@@ -76,10 +76,6 @@ def calculate_g_derivative(u,dx,order,max_derivative=1, boundary=False):
         u_deriv_order = ps.FiniteDifference(order=order,d=max_derivative, axis=0, drop_endpoints=True)._differentiate(u, dx)
         row_mask = ~np.isnan(u_deriv_order).all(axis=1)
         col_mask = ~np.isnan(u_deriv_order).all(axis=0)
-        #print(row_mask)
-        #print(col_mask)
-        #print(u.shape)
-        #print(u[row_mask][:, col_mask].shape)
         u_deriv = [u[row_mask][:, col_mask].flatten().reshape(-1,1)]
     else:
         u_deriv = [u_flat.reshape(N,1)]
@@ -152,3 +148,18 @@ def get_result_df(u,dx,noise_levels,orders=range(2,10,2),max_order_derivative=1,
 
     return result
 
+def perform_experiment(experiment_name,n_samples=50,noise_levels = [0]+[10**(-10+i) for i in range(0,9)],orders=range(2,10,2),max_order_derivative=1, Cxi=1.0,save_result = False):
+    #Get data
+    u,x,t,formula = experiment_data(n_samples=n_samples,experiment_name=experiment_name)
+    dx=x[1]-x[0]
+    dt=t[1]-t[0]
+    print("Performing experiment ",experiment_name, "with formula", formula)
+    result = get_result_df(u,dx,noise_levels,max_order_derivative=max_order_derivative,Cxi=Cxi,boundary=True)
+    #Save results
+    # Creating the directory if it doesn't exist
+    if save_result:
+        directory_path="../results/" + experiment_name
+        if not os.path.exists(directory_path):
+            os.makedirs(directory_path)
+        result.to_csv(directory_path+f"/results_nr_franco_orderderivative{max_order_derivative}.csv")
+    return result

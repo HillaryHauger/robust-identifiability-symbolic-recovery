@@ -1,5 +1,6 @@
 .idea/
-__pycache__/
+*/__pycache__
 .ipynb_checkpoints
 */.ipynb_checkpoints
-Noise \Analysis/Images
+results/*
+Noise_Robust_Identifiability_Physical_Law_Learning.egg-info

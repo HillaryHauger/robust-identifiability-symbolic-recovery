@@ -1,5 +1,9 @@
 import numpy as np
 from utils.utils import infinity_norm
+
+"""
+Here error bounds for finite difference calculation and the reversed condition o_n/o_1 are provided.
+"""
     
 #######################################################################################################
 ####   Functions for bounding finite differences error up to third derivative central differences #####

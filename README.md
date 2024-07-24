@@ -18,6 +18,16 @@ This will install all required dependencies.
 
 ## Structure
 
+The repository is organized as follows:
+
+    `experiments`: Contains scripts and configurations for running experiments on NR-FRanCo and NR-JRC.
+
+    `methods/`: Includes the implementation of NR-FRanCO and NR-JRC. This includes functionalities to bound the error on finite differences and the function $\frac{\sigma_n}{\sigma_1}$ as well as the calculation of the derivatives with the pysindy package.
+
+    `results/`: Stores results from running experiments in 'nr_jrc_and_nr_franco.ipynb' as a csv file.
+
+    `utils/`: Contains utility scripts and helper functions for creating the test_data and so on.
+     
 ## Usage
 
-## License
+The experiments can be run with jupyter notebooks in the experiments folder for NR_FRanCo and NR-JRC. The 'nr_jrc_and_nr_franco.ipynb' compares the results of both algorithms for four different PDEs and shows how many where correctly calculated.

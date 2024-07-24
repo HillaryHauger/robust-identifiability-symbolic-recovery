@@ -13,6 +13,10 @@ setup(
         'pandas', 
         'matplotlib',
         'seaborn',
-        'pysindy',
+        'pysindy==1.7.5',
+        'sympy',
+        'jupyterlab',
+        'notebook',
     ], 
+    python_requires='>=3.8',
 ) 

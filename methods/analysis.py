@@ -5,6 +5,11 @@ from utils.test_data import *
 import numpy as np
 import pandas as pd
 
+"""
+Functions for calculating how many notebooks where correctly classified my NR-FRanCO and JRC
+depending on noise level and finite difference order.
+"""
+
 def plot_classif_vs_noiselevel_unique_nonunique(plot_results,N_unique,N_nonunique,path=None):
     labelsize=14
     titlesize=16
@@ -80,8 +85,7 @@ def perform_experiment_jrc(noise_levels,fd_order,experiment_name,true_class,C2_p
         results.loc[len(results)] = [true_class, predicted_class,C2_param,noise_level,fd_order]
     results["Correct_Classification"]=results["True_Class"]==results["Pred_Class"]
     return results    
-
-
+(noise_levels,fd_order,experiment_name,true_class)
 def perform_experiment_sfranco(noise_levels,experiment_name,true_class):
     #Get data
     u,x,t,formula = experiment_data(n_samples=150,experiment_name=experiment_name)
