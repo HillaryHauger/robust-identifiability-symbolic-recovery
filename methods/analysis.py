@@ -3,8 +3,6 @@ from methods.sfranco_analysis import *
 from methods.jrc_analysis import *
 from utils.test_data import *
 import numpy as np
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 def plot_classif_vs_noiselevel_unique_nonunique(plot_results,N_unique,N_nonunique,path=None):
