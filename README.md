@@ -1,5 +1,4 @@
-#ROBUST IDENTIFIABILITY FOR SYMBOLIC RECOVERY OF DIFFERENTIAL
-EQUATIONS
+# ROBUST IDENTIFIABILITY FOR SYMBOLIC RECOVERY OF DIFFERENTIAL EQUATIONS
 
 Robust Identifiability for symbolic recovery of differntial equations provides Code for analysing the identifiablity of governing equations with noise.
 
@@ -7,7 +6,7 @@ Robust Identifiability for symbolic recovery of differntial equations provides C
 To set up this project, first clone this repository:
 
 ```bash
-git clone git@github.com:HillaryHauger/noise-robust-identifiability-physical-law-learning.git
+git clone git@github.com:HillaryHauger/robust-identifiability-symbolic-recovery.git
 ```
 Next, create a new virtual environment (e.g. using conda), then run
 ```bash
