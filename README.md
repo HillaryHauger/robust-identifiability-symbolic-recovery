@@ -1,6 +1,7 @@
-# Noise Robust Identifiability of Physical Law Learning
+#ROBUST IDENTIFIABILITY FOR SYMBOLIC RECOVERY OF DIFFERENTIAL
+EQUATIONS
 
-Noise Robust Identifiability of Physical Law Learning provides Code for analysing the identifiablity of governing equations with noise.
+Robust Identifiability for symbolic recovery of differntial equations provides Code for analysing the identifiablity of governing equations with noise.
 
 ## Installation
 To set up this project, first clone this repository:
