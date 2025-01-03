@@ -16,6 +16,19 @@ pip install -e .
 
 This will install all required dependencies.
 
+If encountered with the error 
+
+```bash
+../meson.build:48:4: ERROR: Problem encountered: OpenBLAS or Netlib BLAS/CBLAS is required on all platforms except Windows, and was not found
+```
+you have to install OpenBLAS manually (https://github.com/OpenMathLib/OpenBLAS), this can be done using the following commands
+```bash
+sudo apt update
+sudo apt install libopenblas-dev
+```
+Rerunning the installation should work then.
+
+
 ## Structure
 
 The repository is organized as follows:
