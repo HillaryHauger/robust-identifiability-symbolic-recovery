@@ -6,7 +6,7 @@ import pysindy as ps
 from utils.test_data import *
 from methods.error_bounds import *
 
-#Plots classification for different noise leevels
+#Plots classification for different noise levels
 def plot_uniq_non_uniq_class_with_noise_levels(noise_levels,result,image_path=None,title='Classification for different Noise Levels'):
     num_cols = 4
     num_rows = int(np.ceil(len(noise_levels)/num_cols))
@@ -14,43 +14,44 @@ def plot_uniq_non_uniq_class_with_noise_levels(noise_levels,result,image_path=No
     fig.suptitle(title, fontsize=16)
     
     # Iterate over noise levels
-    j=0
     for i, noise_level in enumerate(noise_levels,start=0):
         df = result[result["noise_level"] == noise_level]
-  
-        max_val = max(result["ratio"].max(),df["threshold_exact_uniq"].max(),df["threshold_exact_nonuniq"].max()) 
-        axs[i//(num_rows+1), j%(num_cols)].set_title(f"Noise Level {noise_level}")
-        axs[i//(num_rows+1), j%(num_cols)].plot(df["ratio"], color='blue',label =r"$\rho(\tilde{G})$")
-        axs[i//(num_rows+1), j%(num_cols)].plot(df["threshold_exact_nonuniq"], ':', label="non unique", color='aquamarine')
-        axs[i//(num_rows+1), j%(num_cols)].fill_between(df.index, 0, df["threshold_exact_nonuniq"], color='aquamarine', alpha=0.3)
+
+        if num_rows > 1:
+            index = (i//num_cols, i%(num_cols)) 
+        else:
+            index = i        
         
-        axs[i//(num_rows+1), (j)%num_cols].plot(df["threshold_exact_uniq"], ':', label="unique", color='coral')
-        axs[i//(num_rows+1), (j)%num_cols].fill_between(df.index, df["threshold_exact_uniq"], y2=max_val, color='coral', alpha=0.3)
-        axs[i//(num_rows+1), (j)%num_cols].set_yscale('log')
+        max_val = max(result["ratio"].max(),df["threshold_exact_uniq"].max(),df["threshold_exact_nonuniq"].max()) 
+        axs[index].set_title(f"Noise Level {noise_level}")
+        axs[index].plot(df["ratio"], color='blue',label =r"$\rho(\tilde{G})$")
+        axs[index].plot(df["threshold_exact_nonuniq"], ':', label="non unique", color='aquamarine')
+        axs[index].fill_between(df.index, 0, df["threshold_exact_nonuniq"], color='aquamarine', alpha=0.3)
+        
+        axs[index].plot(df["threshold_exact_uniq"], ':', label="unique", color='coral')
+        axs[index].fill_between(df.index, df["threshold_exact_uniq"], y2=max_val, color='coral', alpha=0.3)
+        axs[index].set_yscale('log')
         
         #Only show legend in first plot
         if i ==0:
-            axs[i//(num_rows+1), j%(num_cols)].legend(loc=4)
-            axs[i//(num_rows+1), j%(num_cols)].legend(loc=4)
+            axs[index].legend(loc=4)
+            axs[index].legend(loc=4)
         #Only show y and x label in last plot
         
         if i//(num_rows+1) == num_rows-1:
-            axs[i//(num_rows+1), j%(num_cols)].set_xticks(df.index)
-            axs[i//(num_rows+1), j%(num_cols)].set_xticklabels(df.order)
-            if j%(num_cols) == 0: 
-                axs[i//(num_rows+1), j%(num_cols)].set_ylabel('Threshold/Ratio')
-                axs[i//(num_rows+1), j%(num_cols)].set_xlabel('Order')
+            axs[index].set_xticks(df.index)
+            axs[index].set_xticklabels(df.order)
+            if i%(num_cols) == 0: 
+                axs[index].set_ylabel('Threshold/Ratio')
+                axs[index].set_xlabel('Order')
         else:
             #Get rid of x labels
-            axs[i//(num_rows+1), j%(num_cols)].set_xticks([])
-            axs[i//(num_rows+1), j%(num_cols)].set_xticks([])
+            axs[index].set_xticks([])
+            axs[index].set_xticks([])
         
-            
-        j+=1
-    
     # Show the plot
-    #fig.savefig(image_path)
     plt.show()
+    # fig.savefig(f'{image_path}.svg')
 
 def classify_string(linear_string):
     if 'nonunique' in linear_string:
