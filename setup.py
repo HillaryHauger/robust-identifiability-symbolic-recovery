@@ -9,7 +9,7 @@ setup(
     author_email='hillary.hauger@yahoo.com', 
     packages=find_packages(), 
     install_requires=[ 
-        'numpy=1.26.4.', 
+        'numpy==1.26.4', 
         'pandas', 
         'matplotlib',
         'seaborn',
