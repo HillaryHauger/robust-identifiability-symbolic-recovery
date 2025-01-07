@@ -8,222 +8,397 @@ from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
 import pandas as pd
 
-#Defining colors for the plots: green = true , red = false
-green=(100/255,250/255,100/255)#(0,1,0)
-neutral_color = (1, 1, 1)  
-red=(241/255,13/255,30/255)
-cmap_green_red = LinearSegmentedColormap.from_list('RedGreen', [green,neutral_color,red], N=256)
-cmap_red_green = LinearSegmentedColormap.from_list('GreenRed', [red,neutral_color,green], N=256)
+# Defining colors for the plots: green = true , red = false
+green = (100 / 255, 250 / 255, 100 / 255)  # (0,1,0)
+neutral_color = (1, 1, 1)
+red = (241 / 255, 13 / 255, 30 / 255)
+cmap_green_red = LinearSegmentedColormap.from_list(
+    "RedGreen", [green, neutral_color, red], N=256
+)
+cmap_red_green = LinearSegmentedColormap.from_list(
+    "GreenRed", [red, neutral_color, green], N=256
+)
+# Set global figure parameters
+plt.rcParams.update({"figure.dpi": 300, "savefig.dpi": 700})
 
-"""
-This function computes the derivatives needed for the jacobian such that all derivatives have the same shape:
-drop_endpoints: specifies if FiniteDifference should use the endpoints for calculation or not
-remove_endpoints: if drop_endpoints=True remove_endpoints removes all the NaN values in the derivatives
-"""
-def get_derivatives(u,dt,dx,fd_order,drop_endpoints=True,remove_endpoints=True):
-    #Compute the derivatives
-    ut_fd = ps.FiniteDifference(order=fd_order, d=1, axis=1, drop_endpoints=drop_endpoints)._differentiate(u, t=dt)
-    utx_fd = ps.FiniteDifference(order=fd_order, d=1, axis=0, drop_endpoints=drop_endpoints)._differentiate(ut_fd, dx)
-    ux_fd = ps.FiniteDifference(order=fd_order, d=1, axis=0, drop_endpoints=drop_endpoints)._differentiate(u, dx)
-    uxx_fd = ps.FiniteDifference(order=fd_order, d=2, axis=0, drop_endpoints=drop_endpoints)._differentiate(u, dx) 
+
+def get_derivatives(u, dt, dx, fd_order, drop_endpoints=True, remove_endpoints=True):
+    """
+    This function computes the derivatives needed for the jacobian such that all derivatives have the same shape:
+    drop_endpoints: specifies if FiniteDifference should use the endpoints for calculation or not
+    remove_endpoints: if drop_endpoints=True remove_endpoints removes all the NaN values in the derivatives
+    """
+    # Compute the derivatives
+    ut_fd = ps.FiniteDifference(
+        order=fd_order, d=1, axis=1, drop_endpoints=drop_endpoints
+    )._differentiate(u, t=dt)
+    utx_fd = ps.FiniteDifference(
+        order=fd_order, d=1, axis=0, drop_endpoints=drop_endpoints
+    )._differentiate(ut_fd, dx)
+    ux_fd = ps.FiniteDifference(
+        order=fd_order, d=1, axis=0, drop_endpoints=drop_endpoints
+    )._differentiate(u, dx)
+    uxx_fd = ps.FiniteDifference(
+        order=fd_order, d=2, axis=0, drop_endpoints=drop_endpoints
+    )._differentiate(u, dx)
 
     if remove_endpoints:
-        #Filter out the boundary values
-        filter_func=utx_fd
-        ut_fd= ut_fd[~np.isnan(filter_func).all(axis=1)][:, ~np.isnan(filter_func).all(axis=0)]
-        utx_fd= utx_fd[~np.isnan(filter_func).all(axis=1)][:, ~np.isnan(filter_func).all(axis=0)]
-        ux_fd= ux_fd[~np.isnan(filter_func).all(axis=1)][:, ~np.isnan(filter_func).all(axis=0)]
-        uxx_fd= uxx_fd[~np.isnan(filter_func).all(axis=1)][:, ~np.isnan(filter_func).all(axis=0)]
-    return ut_fd, utx_fd,ux_fd, uxx_fd
+        # Filter out the boundary values
+        filter_func = utx_fd
+        ut_fd = ut_fd[~np.isnan(filter_func).all(axis=1)][
+            :, ~np.isnan(filter_func).all(axis=0)
+        ]
+        utx_fd = utx_fd[~np.isnan(filter_func).all(axis=1)][
+            :, ~np.isnan(filter_func).all(axis=0)
+        ]
+        ux_fd = ux_fd[~np.isnan(filter_func).all(axis=1)][
+            :, ~np.isnan(filter_func).all(axis=0)
+        ]
+        uxx_fd = uxx_fd[~np.isnan(filter_func).all(axis=1)][
+            :, ~np.isnan(filter_func).all(axis=0)
+        ]
+    return ut_fd, utx_fd, ux_fd, uxx_fd
 
-"""
-This function filters all NaN values specified in filter_func out of func_fd.
-func_fd: the function calculate with finite differences
-func_true: the true derivative
-filter_func: the function we want to filter out the nan values with
-"""
-def drop_endpoints(func_fd,func_true,filter_func):
-    func_true = func_true[~np.isnan(filter_func).all(axis=1)][:, ~np.isnan(filter_func).all(axis=0)]
-    func_fd= func_fd[~np.isnan(filter_func).all(axis=1)][:, ~np.isnan(filter_func).all(axis=0)]
-    return func_fd,func_true
 
-"""
-This function calculates the upper error bound for the jacobian of the function g =(u | ux)
-"""
-def get_upper_bound_jacobian(eps,fd_order,Cut,Cux,Cuxx,Cutx,dt,dx,Cxi=1.0):
+def drop_endpoints(func_fd, func_true, filter_func):
+    """
+    This function filters all NaN values specified in filter_func out of func_fd.
+    func_fd: the function calculate with finite differences
+    func_true: the true derivative
+    filter_func: the function we want to filter out the nan values with
+    """
+    func_true = func_true[~np.isnan(filter_func).all(axis=1)][
+        :, ~np.isnan(filter_func).all(axis=0)
+    ]
+    func_fd = func_fd[~np.isnan(filter_func).all(axis=1)][
+        :, ~np.isnan(filter_func).all(axis=0)
+    ]
+    return func_fd, func_true
 
-    bound_ut = upper_bound_central_differences(eps,fd_order,order_derivative=1,Cu=Cut,Cxi=Cxi,h=dt)
-    bound_ux = upper_bound_central_differences(eps,fd_order,order_derivative=1,Cu=Cux,Cxi=Cxi,h=dx)
-    bound_uxx = upper_bound_central_differences(eps,fd_order,order_derivative=2,Cu=Cuxx,Cxi=Cxi,h=dx)
-    bound_utx = upper_bound_central_differences(bound_ut,fd_order,order_derivative=1,Cu=Cutx,Cxi=Cxi,h=dx)
 
-    upper_bound = np.sqrt(bound_ut**2+bound_ux**2 + bound_uxx**2+bound_utx**2)
-    
+def get_upper_bound_jacobian(eps, fd_order, Cut, Cux, Cuxx, Cutx, dt, dx, Cxi=1.0):
+    """
+    This function calculates the upper error bound for the jacobian of the function g =(u | ux)
+    """
+    bound_ut = upper_bound_central_differences(
+        eps, fd_order, order_derivative=1, Cu=Cut, Cxi=Cxi, h=dt
+    )
+    bound_ux = upper_bound_central_differences(
+        eps, fd_order, order_derivative=1, Cu=Cux, Cxi=Cxi, h=dx
+    )
+    bound_uxx = upper_bound_central_differences(
+        eps, fd_order, order_derivative=2, Cu=Cuxx, Cxi=Cxi, h=dx
+    )
+    bound_utx = upper_bound_central_differences(
+        bound_ut, fd_order, order_derivative=1, Cu=Cutx, Cxi=Cxi, h=dx
+    )
+
+    upper_bound = np.sqrt(bound_ut**2 + bound_ux**2 + bound_uxx**2 + bound_utx**2)
+
     return upper_bound
 
-"""
-This function calculates the upper bounds for the derivative u fd_order+deriv_order
-for ut, ux, uxx and utx. 
-These bounds are needed for estimating the error of the Jacobian.
-"""
-def get_Cut_Cux_Cuxx_Cutx(formula,X,T,fd_order):
-    Cut = get_upper_bound_all_deriv_up_tofd_order(formula,'t', X,T,fd_order,deriv_order=1)
-    Cux = get_upper_bound_all_deriv_up_tofd_order(formula,'x', X,T,fd_order,deriv_order=1)
-    Cuxx = get_upper_bound_all_deriv_up_tofd_order(formula,'x', X,T,fd_order,deriv_order=2)
-    Cutx = get_upper_bound_all_deriv_up_tofd_order(sympy.diff(formula,sympy.Symbol('t'),1),'x',X,T,fd_order,deriv_order=1)
+
+def get_Cut_Cux_Cuxx_Cutx(formula, X, T, fd_order):
+    """
+    This function calculates the upper bounds for the derivative u fd_order+deriv_order
+    for ut, ux, uxx and utx.
+    These bounds are needed for estimating the error of the Jacobian.
+    """
+    Cut = get_upper_bound_all_deriv_up_tofd_order(
+        formula, "t", X, T, fd_order, deriv_order=1
+    )
+    Cux = get_upper_bound_all_deriv_up_tofd_order(
+        formula, "x", X, T, fd_order, deriv_order=1
+    )
+    Cuxx = get_upper_bound_all_deriv_up_tofd_order(
+        formula, "x", X, T, fd_order, deriv_order=2
+    )
+    Cutx = get_upper_bound_all_deriv_up_tofd_order(
+        sympy.diff(formula, sympy.Symbol("t"), 1), "x", X, T, fd_order, deriv_order=1
+    )
     return (Cut, Cux, Cuxx, Cutx)
 
-"""
-get upper bound on the fd_order +deriv_order derivative of u with finite differnces
-"""
-def get_upper_bound_fd_order_withfd(u,axis,t,fd_order,deriv_order):
-    u_deriv = ps.FiniteDifference(order=fd_order, d=fd_order+deriv_order, axis=axis, drop_endpoints=False)._differentiate(u, t=t)
+
+def get_upper_bound_fd_order_withfd(u, axis, t, fd_order, deriv_order):
+    """
+    get upper bound on the fd_order +deriv_order derivative of u with finite differnces
+    """
+    u_deriv = ps.FiniteDifference(
+        order=fd_order, d=fd_order + deriv_order, axis=axis, drop_endpoints=False
+    )._differentiate(u, t=t)
     up = infinity_norm(u_deriv)
     return up
 
 
-"""
-get upper bound on all derivatives from fd_order+1 to fd_order+deriv_order derivative of u
-with using finite differences
-"""
-def get_upper_bound_all_deriv_up_tofd_order_fd(u,axis,t,fd_order,deriv_order):
+def get_upper_bound_all_deriv_up_tofd_order_fd(u, axis, t, fd_order, deriv_order):
+    """
+    get upper bound on all derivatives from fd_order+1 to fd_order+deriv_order derivative of u
+    with using finite differences
+    """
     upper_bounds = []
-    for deriv in range(fd_order,fd_order+deriv_order):
-        up = get_upper_bound_fd_order_withfd(u,axis,t,deriv,1)
+    for deriv in range(fd_order, fd_order + deriv_order):
+        up = get_upper_bound_fd_order_withfd(u, axis, t, deriv, 1)
         upper_bounds.append(up)
-    #print("upper bound", upper_bounds)
-    total_up = np.max(upper_bounds)   
-    #print(total_up)
+    # print("upper bound", upper_bounds)
+    total_up = np.max(upper_bounds)
+    # print(total_up)
     return total_up
-"""
-This function calculates the upper bounds for the derivative u fd_order+deriv_order
-for ut, ux, uxx and utx with finite differences
-"""
-def get_Cut_Cux_Cuxx_Cutx_fd(u,dx,dt,fd_order):
-    Cut = get_upper_bound_all_deriv_up_tofd_order_fd(u,1, dt,fd_order,deriv_order=1)
-    Cux = get_upper_bound_all_deriv_up_tofd_order_fd(u,0, dx,fd_order,deriv_order=1)
-    Cuxx = get_upper_bound_all_deriv_up_tofd_order_fd(u,0,dx,fd_order,deriv_order=2)
-    ut = ps.FiniteDifference(order=fd_order, d=1, axis=1, drop_endpoints=drop_endpoints)._differentiate(u, t=dt)
-    Cutx = get_upper_bound_all_deriv_up_tofd_order_fd(u,0,dx,fd_order,deriv_order=1)
+
+
+def get_Cut_Cux_Cuxx_Cutx_fd(u, dx, dt, fd_order):
+    """
+    This function calculates the upper bounds for the derivative u fd_order+deriv_order
+    for ut, ux, uxx and utx with finite differences
+    """
+
+    Cut = get_upper_bound_all_deriv_up_tofd_order_fd(u, 1, dt, fd_order, deriv_order=1)
+    Cux = get_upper_bound_all_deriv_up_tofd_order_fd(u, 0, dx, fd_order, deriv_order=1)
+    Cuxx = get_upper_bound_all_deriv_up_tofd_order_fd(u, 0, dx, fd_order, deriv_order=2)
+    ut = ps.FiniteDifference(
+        order=fd_order, d=1, axis=1, drop_endpoints=drop_endpoints
+    )._differentiate(u, t=dt)
+    Cutx = get_upper_bound_all_deriv_up_tofd_order_fd(u, 0, dx, fd_order, deriv_order=1)
     return (Cut, Cux, Cuxx, Cutx)
 
-"""
-This function calculates the singular values, lower and upper bounds for a function u
-and an fd_order for different datapoints speficied in space and time range
-u: function u
-C_upper_bounds: These are the bounds for the fd_order + deriv_order of u calculated in get_Cut_Cux_Cuxx_Cutx
-fd_order: finite differences order
-eps: ps is the upper bound on the noise on u |u-u_noise|_infty < eps
-C2_param: specifies lower bound for on > C2 > 0 with C2=max(C2_param*sv_max,sv_min*0.5)
-return: svs - singular values calculated with finite differences at specified data points
-        lower_bounds/upper_bounds: for identifying wether a PDE is unique or not
-        space_range/time_range: data_points where the function is evaluated
-"""
-def get_results(u,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param=1e-4):
-    #Upper bounds on fd_order+deriv_order derivative of u
-    Cut, Cux, Cuxx, Cutx= C_upper_bounds_deriv
-    #Calculate finite differences
-    ut_fd, utx_fd,ux_fd, uxx_fd= get_derivatives(u,dt,dx,fd_order)
-    #Data points
-    space_range = int(utx_fd.shape[0]/10-1)
-    time_range = int(utx_fd.shape[1]/10-1)
-    #For saving results
+
+def get_results(u, C_upper_bounds_deriv, fd_order, dt, dx, eps, C2_param=1e-4):
+    """
+    This function calculates the singular values, lower and upper bounds for a function u
+    and an fd_order for different datapoints speficied in space and time range
+    u: function u
+    C_upper_bounds: These are the bounds for the fd_order + deriv_order of u calculated in get_Cut_Cux_Cuxx_Cutx
+    fd_order: finite differences order
+    eps: ps is the upper bound on the noise on u |u-u_noise|_infty < eps
+    C2_param: specifies lower bound for on > C2 > 0 with C2=max(C2_param*sv_max,sv_min*0.5)
+    return: svs - singular values calculated with finite differences at specified data points
+            lower_bounds/upper_bounds: for identifying wether a PDE is unique or not
+            space_range/time_range: data_points where the function is evaluated
+    """
+    # Upper bounds on fd_order+deriv_order derivative of u
+    Cut, Cux, Cuxx, Cutx = C_upper_bounds_deriv
+    # Calculate finite differences
+    ut_fd, utx_fd, ux_fd, uxx_fd = get_derivatives(u, dt, dx, fd_order)
+    # Data points
+    space_range = int(utx_fd.shape[0] / 10 - 1)
+    time_range = int(utx_fd.shape[1] / 10 - 1)
+    # For saving results
     svs = np.zeros([space_range, time_range])
     upper_bounds = np.zeros([space_range, time_range])
     lower_bounds = np.zeros([space_range, time_range])
-    
+
     for i in range(space_range):
         for j in range(time_range):
             x_i, t_j = i * 10 + 10, j * 10 + 10
-            jacobian_fd = np.array([[ut_fd[x_i,t_j], ux_fd[x_i,t_j]], [utx_fd[x_i,t_j], uxx_fd[x_i,t_j]]]).reshape(2,2)
+            jacobian_fd = np.array(
+                [
+                    [ut_fd[x_i, t_j], ux_fd[x_i, t_j]],
+                    [utx_fd[x_i, t_j], uxx_fd[x_i, t_j]],
+                ]
+            ).reshape(2, 2)
 
             sv_fd = svd(jacobian_fd, compute_uv=False)
-            sv_min =sv_fd[-1]
-            sv_max =sv_fd[0]
-            C1=sv_max*1.5
-            C=sv_max*0.5
-            C2=max(C2_param*sv_max,sv_min*0.5)
+            sv_min = sv_fd[-1]
+            sv_max = sv_fd[0]
+            C1 = sv_max * 1.5
+            C = sv_max * 0.5
+            C2 = max(C2_param * sv_max, sv_min * 0.5)
 
-            upper_bound_jacobian = get_upper_bound_jacobian(eps,fd_order,Cut,Cux,Cuxx,Cutx,dt,dx)
-            lower_bound = lower_bound_nonsingular_matrix(C1,C2,upper_bound_jacobian)
-            upper_bound = upper_bound_singular_matrix(C,upper_bound_jacobian)
+            upper_bound_jacobian = get_upper_bound_jacobian(
+                eps, fd_order, Cut, Cux, Cuxx, Cutx, dt, dx
+            )
+            lower_bound = lower_bound_nonsingular_matrix(C1, C2, upper_bound_jacobian)
+            upper_bound = upper_bound_singular_matrix(C, upper_bound_jacobian)
 
-            #Save the results 
-            svs[i,j] = sv_min/sv_max
-            lower_bounds[i,j]=lower_bound
-            upper_bounds[i,j]=upper_bound
-    return svs, lower_bounds,upper_bounds,space_range,time_range
-    
-"""
-This function performs one experiment for an experiment_name.
-It fetches the data and calculates the svs,lower_bounds,upper_bounds for all noise_levels.
-Additionally it plots the results.
-"""
-def perform_experiment(noise_levels,fd_order,experiment_name,C2_param=1e-3,tickssize=16,exact_upper_bounds=False):
-    
-    #Get data,
-    u,x,t,formula = experiment_data(n_samples=150,experiment_name=experiment_name)
-    dx=x[1]-x[0]
-    dt=t[1]-t[0]
-    print(f"Performing experiment {experiment_name} {formula} with order {fd_order}, C2 = {C2_param:.2e}")
-    subtitle=f"Experiment {experiment_name} {formula}, Order {fd_order}, C2_param = {C2_param:.2e}"
-    T,X = np.meshgrid(t,x)
-    
+            # Save the results
+            svs[i, j] = sv_min / sv_max
+            lower_bounds[i, j] = lower_bound
+            upper_bounds[i, j] = upper_bound
+    return svs, lower_bounds, upper_bounds, space_range, time_range
+
+
+def perform_experiment(
+    noise_levels,
+    fd_order,
+    experiment_name,
+    C2_param=1e-4,
+    tickssize=16,
+    exact_upper_bounds=False,
+):
+    """
+    This function performs one experiment for an experiment_name.
+    It fetches the data and calculates the svs,lower_bounds,upper_bounds for all noise_levels.
+    Additionally it plots the results.
+    """
+    # Get data,
+    u, x, t, formula = experiment_data(n_samples=150, experiment_name=experiment_name)
+    dx = x[1] - x[0]
+    dt = t[1] - t[0]
+    print(
+        f"Performing experiment {experiment_name} {formula} with order {fd_order}, C2 = {C2_param:.2e}"
+    )
+    T, X = np.meshgrid(t, x)
+
+    # Save results to plot in the end
+    save_upper_minus_svs = []
+    save_lower_minus_svs = []
+
     if exact_upper_bounds:
-        C_upper_bounds_deriv = get_Cut_Cux_Cuxx_Cutx(formula,X,T,fd_order)
-    
-    fig, axes = plt.subplots(2,6, figsize=(24,8))
+        C_upper_bounds_deriv = get_Cut_Cux_Cuxx_Cutx(formula, X, T, fd_order)
 
-    label_nonunique = r"$\dfrac{\epsilon_{J_G}}{ C_1^{low}-\epsilon_{J_G}}-\rho(J_{\tilde{G}})$"
-    label_unique    = r'$\dfrac{C_n-\epsilon_{J_G}}{C_1^{up}+\epsilon_{J_G}} -\rho(J_{\tilde{G}})$'
-    
-    for i,noise_level in enumerate(noise_levels):
-        u_noise = add_noise(u,noise_level)
-        #Calculate Cut, Cux, Cuxx, Cutx with noisy FD
-        if ~exact_upper_bounds:
-            C_upper_bounds_deriv = get_Cut_Cux_Cuxx_Cutx_fd(u,dx,dt,fd_order)
-        eps = infinity_norm(u-u_noise)
-        
-        svs, lower_bounds,upper_bounds,space_range,time_range = get_results(u_noise,C_upper_bounds_deriv,fd_order,dt,dx,eps,C2_param)   
-        t_grid, x_grid = (np.arange(time_range) * 10 + 10) / len(t) * (t[len(t)-1] - t[0]) + t[0], (np.arange(space_range) * 10 + 10) / len(x) * (x[len(x)-1] - x[0]) + x[0]
-     
-        #Plot the ratios
+    # Perform experiments
+    for i, noise_level in enumerate(noise_levels):
+        u_noise = add_noise(u, noise_level)
+        # Calculate Cut, Cux, Cuxx, Cutx with noisy FD
+        if not exact_upper_bounds:
+            C_upper_bounds_deriv = get_Cut_Cux_Cuxx_Cutx_fd(u, dx, dt, fd_order)
+        eps = infinity_norm(u - u_noise)
 
-        c = axes[i//2,i*3%6+0].pcolor(t_grid, x_grid, svs)
-        axes[i//2,i*3%6+0].set_title(r"$\frac{\sigma_n}{\sigma_1}$", fontsize=tickssize)
-        axes[i//2,i*3%6+0].set_ylabel('x', fontsize=tickssize)
-        axes[i//2,i*3%6+0].set_xlabel('t', fontsize=tickssize)
-        fig.colorbar(c, ax=axes[i//2,i*3%6])
-        
-        upper_minus_svs = upper_bounds - svs
-        lower_minus_svs = lower_bounds -svs
-        
-        max_lower_svs= np.max(np.abs(lower_minus_svs))
-        max_upper_svs = np.max(np.abs(upper_minus_svs))
-    
-        #Plot difference to upper bound
-        max_svs = max_upper_svs
-        plt.suptitle(subtitle, fontsize=tickssize,y=1.1)
-        axes[i//2,i*3%6+1].set_title(f'Noise level {noise_level} \n Non Unique', fontsize=tickssize)
-        c=axes[i//2,i*3%6+1].pcolor(t_grid, x_grid, upper_minus_svs,cmap=cmap_red_green,vmin=-max_svs, vmax=max_svs)
-        axes[i//2,i*3%6+1].set_yticks([])
-        fig.colorbar(c, ax=axes[i//2,i*3%6+1])
-       
-        #Plot difference to lower bound
-        max_svs = max_lower_svs
-        axes[i//2,i*3%6+2].set_title('Unique', fontsize=tickssize)
-        c = axes[i//2,i*3%6+2].pcolor(t_grid, x_grid, lower_minus_svs, cmap=cmap_green_red, vmin=-max_svs, vmax=max_svs)
-        axes[i//2,i*3%6+2].set_yticks([])
-        fig.colorbar(c, ax=axes[i//2,i*3%6+2])
-
-        #Plot legend for True and False
-        legend_elements = [
-            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='g', markersize=10, label='True'),
-            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='r', markersize=10, label='False')
+        svs, lower_bounds, upper_bounds, space_range, time_range = get_results(
+            u_noise, C_upper_bounds_deriv, fd_order, dt, dx, eps, C2_param
+        )
+        t_grid, x_grid = (np.arange(time_range) * 10 + 10) / len(t) * (
+            t[len(t) - 1] - t[0]
+        ) + t[0], (np.arange(space_range) * 10 + 10) / len(x) * (
+            x[len(x) - 1] - x[0]
+        ) + x[
+            0
         ]
 
-        fig.legend(handles=legend_elements, loc='lower center', ncol=2, fontsize='large')
+        upper_minus_svs = upper_bounds - svs
+        lower_minus_svs = lower_bounds - svs
 
-        # Adjust subplot layout to make room for the legends
-        plt.subplots_adjust(bottom=0.2)
-        plt.tight_layout()
+        save_upper_minus_svs.append(upper_minus_svs)
+        save_lower_minus_svs.append(lower_minus_svs)
+    # Plot the results
+    plot_jrc(noise_levels, save_upper_minus_svs, save_lower_minus_svs, t_grid, x_grid)
+
+
+def plot_subplot_jrc(
+    fig,
+    t_grid,
+    x_grid,
+    ax,
+    data,
+    cmap,
+    max_val,
+    tickssize,
+    title=None,
+    labelsize=7,
+    linewidth=0.2,
+):
+    """
+    Helper function to plot each subplot for JRC
+    """
+    c = ax.pcolor(t_grid, x_grid, data, cmap=cmap, vmin=-max_val, vmax=max_val)
+    ax.set_yticks([])
+    ax.set_xticks([])
+    ax.set_ylabel("x", fontsize=tickssize, labelpad=0.05)
+    ax.set_xlabel("t", fontsize=tickssize, labelpad=0.05)
+    if title:
+        ax.set_title(title, fontsize=labelsize)
+    ax.tick_params(
+        axis="both", which="major", labelsize=tickssize, width=0.2, length=1.5
+    )
+
+    # Add colorbar
+    cb = fig.colorbar(c, ax=ax, aspect=10, format="%.0e")
+    cb.outline.set_linewidth(linewidth)
+    cb.ax.tick_params(labelsize=tickssize, length=1.5, width=0.2)
+    cb.ax.yaxis.get_offset_text().set_size(tickssize)
+    return ax, cb
+
+
+def plot_jrc(
+    noise_levels,
+    save_upper_minus_svs,
+    save_lower_minus_svs,
+    t_grid,
+    x_grid,
+    filepath=None,
+    labelsize=7,
+    nr_row=2,
+    linewidth=0.2,
+):
+    """
+    Plot the results of the JRC analysis like in Paper:
+    Plot the the difference between the upper bound and the singular values and
+    the difference between the lower bound and the singular values
+    """
+    # Initialize variables
+    nr_col = len(noise_levels)
+    tickssize = labelsize - 2
+
+    # Create figure and axes
+    fig, axes = plt.subplots(
+        nr_row,
+        nr_col,
+        figsize=(0.9 * nr_col, 0.6 * nr_row),
+        gridspec_kw={"height_ratios": [2.5, 2.5], "hspace": 0.35, "wspace": 0.9},
+    )
+
+    scale_y, scale_x = 2.9, 2.0
+    # Manually adjust each subplot's position
+    for ax in axes.flat:
+        pos = ax.get_position()  # Get the current position
+        ax.set_position([pos.x0, pos.y0, pos.width * scale_x, pos.height * scale_y])
+
+    # Loop through noise levels and plot
+    for i, noise_level in enumerate(noise_levels):
+        # Plot upper bound - singular values
+        max_upper_svs = np.max(np.abs(save_upper_minus_svs[i]))
+        title = (
+            f"Noise Level $10^{{{int(np.log10(noise_level))}}}$"
+            if noise_level != 0
+            else "Noise Level 0"
+        )
+        # Plot lower bound - singular values
+        axes[0, i], _ = plot_subplot_jrc(
+            fig,
+            t_grid,
+            x_grid,
+            axes[0, i],
+            save_upper_minus_svs[i],
+            cmap_red_green,
+            max_upper_svs,
+            tickssize,
+            title,
+            labelsize,
+            linewidth,
+        )
+        max_lower_svs = np.max(np.abs(save_lower_minus_svs[i]))
+        axes[1, i], _ = plot_subplot_jrc(
+            fig,
+            t_grid,
+            x_grid,
+            axes[1, i],
+            save_lower_minus_svs[i],
+            cmap_green_red,
+            max_lower_svs,
+            tickssize,
+            labelsize,
+            linewidth,
+        )
+
+    # Set y-axis labels for the first column
+    axes[0, 0].set_ylabel(
+        r"$\dfrac{\epsilon_{J_G}}{ C_1^{low}-\epsilon_{J_G}}$"
+        + "\n"
+        + r"$-\rho(J_{\tilde{G}})$",
+        fontsize=labelsize - 1,
+    )
+    axes[1, 0].set_ylabel(
+        r"$\dfrac{C_n-\epsilon_{J_G}}{C_1^{up}+\epsilon_{J_G}}$"
+        + "\n"
+        + r"$-\rho(J_{\tilde{G}})$",
+        fontsize=labelsize - 1,
+    )
+
+    # Adjust the thickness of the frame around the image
+    for ax in axes.flat:
+        for spine in ax.spines.values():
+            spine.set_linewidth(linewidth)
+
+    # Save and show the figure
+    if filepath != None:
+        plt.savefig(filepath, bbox_inches="tight")
+    plt.show()
